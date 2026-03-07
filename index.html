@@ -3,21 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Standart Hesaplayıcı | Premium</title>
+    <title>Standart Hesaplayıcı | Apple Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-        
+        /* Apple System Fonts */
         :root {
-            --bg-color: #000000;
-            --panel-bg: rgba(28, 28, 30, 0.7);
-            --text-main: #ffffff;
-            --text-muted: #8e8e93;
-            --accent: #0a84ff; /* Apple Blue */
-            --danger: #ff453a;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #f5f5f7; 
+            --panel-bg: rgba(255, 255, 255, 0.85);
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --accent: #0071e3; 
+            --danger: #ff3b30;
+            --border: rgba(0, 0, 0, 0.08);
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            user-select: none; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
         body { 
             background-color: var(--bg-color); 
@@ -27,6 +34,7 @@
             align-items: center;
             min-height: 100vh; 
             overflow: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #ffffff 0%, #f5f5f7 80%);
         }
 
         .app-container { 
@@ -36,114 +44,154 @@
             display: flex; 
             flex-direction: column; 
             position: relative; 
-            background: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 70%);
         }
 
         /* --- Header --- */
-        .header { padding: 30px 20px 10px; text-align: center; }
-        .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-        .header p { font-size: 14px; color: var(--text-muted); font-weight: 400; margin-top: 5px; }
+        .header { padding: 40px 20px 15px; text-align: center; transition: opacity 0.3s; flex-shrink: 0;}
+        .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-main); }
+        .header p { font-size: 15px; color: var(--text-muted); font-weight: 500; margin-top: 6px; }
 
-        /* --- Meme Notification Overlay (Display Only, Non-Blocking) --- */
-        .meme-toast {
-            position: absolute; top: -180px; left: 50%; transform: translateX(-50%); width: 90%;
-            background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 20px; padding: 15px; display: flex; flex-direction: column; align-items: center;
-            z-index: 999; transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 20px 40px rgba(0,0,0,0.5); pointer-events: none;
+        /* --- iOS Style Non-Blocking Notification (Meme) --- */
+        .ios-toast {
+            position: fixed;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 350px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            padding: 14px;
+            z-index: 9999;
+            transition: top 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none; 
+            border: 1px solid rgba(0,0,0,0.05);
         }
-        .meme-toast.show { top: 40px; }
-        .meme-toast img { width: 100%; height: 200px; object-fit: contain; border-radius: 12px; }
-        .meme-toast span { margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--text-main); text-align: center; }
+        .ios-toast.show { top: 25px; }
+        .ios-toast img { width: 55px; height: 55px; border-radius: 12px; object-fit: cover; margin-right: 15px; border: 1px solid rgba(0,0,0,0.05); }
+        .toast-content { display: flex; flex-direction: column; }
+        .toast-content strong { font-size: 14px; color: var(--text-main); font-weight: 700; margin-bottom: 3px;}
+        .toast-content span { font-size: 13px; color: var(--text-muted); font-weight: 500; line-height: 1.3;}
 
-        /* --- Content Area --- */
-        .content-area { flex: 1; padding: 20px; display: flex; flex-direction: column; justify-content: center; position: relative; }
-        .step { display: none; opacity: 0; transform: translateY(20px); transition: all 0.4s ease; }
+        /* --- Content Area (BUG FIX: overflow-y added so nav bar isn't pushed out) --- */
+        .content-area { 
+            flex: 1; 
+            padding: 10px 20px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* Changed from center to allow scrolling long content */
+            position: relative; 
+            overflow-y: auto; /* Fixes the missing Next button bug */
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+        .content-area::-webkit-scrollbar { display: none; }
+        
+        .step { display: none; opacity: 0; transform: translateY(15px); transition: all 0.4s ease; width: 100%; padding-bottom: 20px;}
         .step.active { display: block; opacity: 1; transform: translateY(0); }
-        h2 { font-size: 22px; font-weight: 600; margin-bottom: 25px; text-align: center; }
+        h2 { font-size: 20px; font-weight: 700; margin-bottom: 25px; text-align: center; color: var(--text-main); letter-spacing: -0.3px;}
 
         /* --- Premium Buttons --- */
         .btn-group { display: flex; flex-direction: column; gap: 12px; }
         .btn {
             background: var(--panel-bg); border: 1px solid var(--border); color: var(--text-main);
-            padding: 18px; border-radius: 16px; font-size: 16px; font-weight: 600; cursor: pointer;
+            padding: 18px; border-radius: 16px; font-size: 17px; font-weight: 600; cursor: pointer;
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: all 0.2s ease;
+            box-shadow: var(--shadow); letter-spacing: -0.2px;
         }
-        .btn:active { transform: scale(0.97); background: rgba(255,255,255,0.1); }
-        .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-        .btn.primary:active { opacity: 0.8; }
-        .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+        .btn:active { transform: scale(0.97); background: #ebebeb; }
+        .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 8px 20px rgba(0, 113, 227, 0.3); }
+        .btn.primary:active { background: #005bb5; }
+        .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; box-shadow: 0 8px 20px rgba(255, 59, 48, 0.3); }
 
         /* --- iOS Style Age Wheel Picker --- */
         .picker-container {
-            position: relative; height: 200px; width: 100%; overflow: hidden; margin: 0 auto;
+            position: relative; height: 220px; width: 100%; overflow: hidden; margin: 0 auto;
             mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
             -webkit-mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent);
+            cursor: grab;
         }
+        .picker-container:active { cursor: grabbing; }
         .picker-list {
-            height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory;
-            padding: 85px 0; /* Center padding */ list-style: none; scrollbar-width: none;
+            height: 100%; overflow-y: auto; scroll-snap-type: y mandatory;
+            padding: 95px 0; list-style: none; scrollbar-width: none;
         }
         .picker-list::-webkit-scrollbar { display: none; }
         .picker-list li {
-            height: 30px; line-height: 30px; text-align: center; font-size: 24px; font-weight: 600;
-            color: var(--text-muted); scroll-snap-align: center; transition: 0.1s;
+            height: 30px; line-height: 30px; text-align: center; font-size: 22px; font-weight: 500;
+            color: #c7c7cc; scroll-snap-align: center; transition: 0.2s; pointer-events: none;
         }
-        .picker-list li.selected { color: var(--text-main); font-size: 34px; font-weight: 800; transform: scale(1.1); }
+        .picker-list li.selected { color: var(--text-main); font-size: 32px; font-weight: 700; transform: scale(1.05); }
         .picker-highlight {
-            position: absolute; top: 85px; left: 0; width: 100%; height: 30px;
+            position: absolute; top: 95px; left: 0; width: 100%; height: 30px;
             border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); pointer-events: none;
         }
 
         /* --- Range Sliders --- */
         .slider-container { margin-bottom: 30px; }
-        .val-display { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 15px; letter-spacing: -1px; }
+        .val-display { font-size: 34px; font-weight: 700; text-align: center; margin-bottom: 20px; letter-spacing: -1px; color: var(--accent); }
         .slider-wrapper { position: relative; width: 100%; height: 40px; }
-        .slider-track { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; }
-        .slider-fill { position: absolute; top: 50%; transform: translateY(-50%); height: 8px; background: var(--accent); border-radius: 4px; z-index: 1; pointer-events: none; }
+        .slider-track { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; height: 6px; background: #e5e5ea; border-radius: 3px; }
+        .slider-fill { position: absolute; top: 50%; transform: translateY(-50%); height: 6px; background: var(--accent); border-radius: 3px; z-index: 1; pointer-events: none; }
         
         input[type="range"] { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); -webkit-appearance: none; background: transparent; pointer-events: none; z-index: 2; margin: 0; }
         input[type="range"]::-webkit-slider-thumb {
             pointer-events: all; -webkit-appearance: none; width: 28px; height: 28px;
             background: #fff; border-radius: 50%; cursor: grab;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid rgba(0,0,0,0.05);
         }
-        input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.1); }
+        input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.05); }
 
         /* --- Toggles (Checkboxes) --- */
         .toggle-row {
-            display: flex; justify-content: space-between; align-items: center; background: var(--panel-bg); padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); font-size: 15px; font-weight: 600; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center; background: var(--panel-bg); padding: 18px 20px; border-radius: 16px; margin-bottom: 12px; border: 1px solid var(--border); font-size: 15px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow); letter-spacing: -0.3px;
         }
-        .toggle-switch { width: 50px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 15px; position: relative; transition: 0.3s; }
-        .toggle-switch::after { content: ''; position: absolute; width: 26px; height: 26px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
+        .toggle-switch { width: 50px; height: 30px; background: #e5e5ea; border-radius: 15px; position: relative; transition: 0.3s; flex-shrink: 0;}
+        .toggle-switch::after { content: ''; position: absolute; width: 26px; height: 26px; background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         input[type="checkbox"] { display: none; }
         input[type="checkbox"]:checked + .toggle-switch { background: var(--accent); }
         input[type="checkbox"]:checked + .toggle-switch::after { transform: translateX(20px); }
 
         /* --- Navigation Bar --- */
-        .nav-bar { padding: 20px; display: flex; gap: 15px; background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); }
-        .nav-bar .btn { flex: 1; padding: 15px; font-size: 15px; }
+        .nav-bar { 
+            padding: 20px; display: flex; gap: 15px; 
+            background: rgba(245, 245, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            border-top: 1px solid var(--border); z-index: 100; flex-shrink: 0;
+        }
+        .nav-bar .btn { flex: 1; padding: 16px; font-size: 16px; box-shadow: none; }
         .hidden { display: none !important; }
 
         /* --- Loading & Result Screens --- */
-        .loading-screen { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; }
-        .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 30px; }
+        .loading-screen { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 50vh; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #e5e5ea; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 25px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .loading-text { font-size: 16px; font-weight: 600; color: var(--text-muted); min-height: 24px; transition: opacity 0.3s; }
 
-        .result-card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 20px; }
-        .res-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 5px; }
-        .res-val { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; color: var(--accent); }
-        .res-msg { font-size: 16px; font-weight: 600; color: var(--danger); line-height: 1.5; }
+        .result-card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 20px; padding: 35px 20px; text-align: center; margin-bottom: 20px; box-shadow: var(--shadow); }
+        .res-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 8px; }
+        .res-val { font-size: 54px; font-weight: 800; letter-spacing: -2px; margin-bottom: 25px; color: var(--accent); }
+        .res-msg { font-size: 16px; font-weight: 600; color: var(--danger); line-height: 1.5; letter-spacing: -0.3px;}
 
-        .chaos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
-        .chaos-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 12px; border-radius: 10px; font-size: 12px; text-align: center; cursor: pointer; }
+        .chaos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .chaos-grid::-webkit-scrollbar { width: 4px; }
+        .chaos-grid::-webkit-scrollbar-thumb { background: #c7c7cc; border-radius: 4px; }
+        .chaos-btn { background: #fff; border: 1px solid var(--border); color: var(--text-main); padding: 14px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; text-align: center; cursor: pointer; transition: 0.2s;}
+        .chaos-btn:active { background: #e5e5ea; }
     </style>
 </head>
 <body>
 
-    <div class="meme-toast" id="meme_toast">
+    <!-- Small, Elegant Notification Overlay -->
+    <div class="ios-toast" id="meme_toast">
         <img id="meme_img" src="" alt="Meme">
-        <span id="meme_text"></span>
+        <div class="toast-content">
+            <strong>Sistem Analizi</strong>
+            <span id="meme_text"></span>
+        </div>
     </div>
 
     <div class="app-container">
@@ -153,32 +201,37 @@
             <p id="header_desc">Gerçeklerle yüzleşmeye hazır mısın?</p>
         </div>
 
-        <div class="content-area">
+        <div class="content-area" id="content_area">
             
+            <!-- Step 1: User Gender -->
             <div id="step_1" class="step active">
                 <h2>Sen kimsin?</h2>
                 <div class="btn-group">
                     <button class="btn" onclick="setUserGender('female')">Kadın</button>
                     <button class="btn" onclick="setUserGender('male')">Erkek</button>
-                    <button class="btn" onclick="openChaosMenu()">Diğer</button>
+                    <button class="btn" id="btn_chaos" style="color: var(--text-muted);" onclick="openChaosMenu()">Diğer</button>
                 </div>
             </div>
 
+            <!-- Step 1.5: Chaos -->
             <div id="step_1_5" class="step">
                 <h2>Kimliğini Doğrula</h2>
                 <div class="chaos-grid" id="chaos_list"></div>
             </div>
 
+            <!-- Step 2: User Age (Draggable iOS Wheel) -->
             <div id="step_2" class="step">
                 <h2>Kendi Yaşın Kaç?</h2>
-                <p style="text-align: center; color: var(--text-muted); font-size: 12px; margin-bottom: 10px;">Çevirerek Seç</p>
-                <div class="picker-container">
+                <p style="text-align: center; color: var(--text-muted); font-size: 13px; margin-bottom: 10px; font-weight: 500;">Kaydırarak Seç</p>
+                <div class="picker-container" id="wheel_container">
                     <div class="picker-highlight"></div>
                     <ul class="picker-list" id="user_age_list">
-                        </ul>
+                        <!-- JS injects ages here -->
+                    </ul>
                 </div>
             </div>
 
+            <!-- Step 3: Target Gender -->
             <div id="step_3" class="step">
                 <h2>Kimi arıyorsun?</h2>
                 <div class="btn-group">
@@ -187,6 +240,7 @@
                 </div>
             </div>
 
+            <!-- Step 4: Target Age Range -->
             <div id="step_4" class="step">
                 <h2>Yaş Aralığı</h2>
                 <div class="slider-container">
@@ -200,18 +254,17 @@
                 </div>
             </div>
 
+            <!-- Step 5: Target Height -->
             <div id="step_5" class="step">
                 <h2 id="h_title">Boy Kriteri</h2>
-                
                 <div id="h_single_ui" class="slider-container hidden">
-                    <div class="val-display"><span id="h_s_val">165</span> cm</div>
+                    <div class="val-display">Min <span id="h_s_val">165</span> cm</div>
                     <div class="slider-wrapper">
                         <div class="slider-track"></div>
                         <div class="slider-fill" id="h_s_fill" style="left:0;"></div>
                         <input type="range" id="h_s_input" min="140" max="210" value="165" oninput="updateHeight()">
                     </div>
                 </div>
-
                 <div id="h_dual_ui" class="slider-container hidden">
                     <div class="val-display"><span id="h_d_val_min">160</span> - <span id="h_d_val_max">180</span> cm</div>
                     <div class="slider-wrapper">
@@ -223,18 +276,17 @@
                 </div>
             </div>
 
+            <!-- Step 6: Target Income -->
             <div id="step_6" class="step">
                 <h2 id="inc_title">Aylık Gelir</h2>
-                
                 <div id="inc_single_ui" class="slider-container hidden">
-                    <div class="val-display"><span id="inc_s_val">30k</span> TL</div>
+                    <div class="val-display">Min <span id="inc_s_val">30k</span> TL</div>
                     <div class="slider-wrapper">
                         <div class="slider-track"></div>
                         <div class="slider-fill" id="inc_s_fill" style="left:0;"></div>
                         <input type="range" id="inc_s_input" min="17000" max="300000" step="1000" value="30000" oninput="updateIncome()">
                     </div>
                 </div>
-
                 <div id="inc_dual_ui" class="slider-container hidden">
                     <div class="val-display"><span id="inc_d_val_min">30k</span> - <span id="inc_d_val_max">100k</span> TL</div>
                     <div class="slider-wrapper">
@@ -246,6 +298,7 @@
                 </div>
             </div>
 
+            <!-- Step 7: Filters -->
             <div id="step_7" class="step">
                 <h2>Son Filtreler</h2>
                 <label class="toggle-row">Evliler dahil mi?
@@ -266,24 +319,27 @@
                 </label>
             </div>
 
-            <div id="step_loading" class="step loading-screen">
+            <!-- Step 8: Loading Screen -->
+            <div id="step_8" class="step loading-screen">
                 <div class="spinner"></div>
                 <div class="loading-text" id="loading_text">Sistem başlatılıyor...</div>
             </div>
 
-            <div id="step_result" class="step">
+            <!-- Step 9: Result Screen -->
+            <div id="step_9" class="step">
                 <div class="result-card">
                     <div class="res-label">Türkiye'deki Oranı</div>
                     <div class="res-val" id="res_pct">0%</div>
                     <div class="res-label">Tahmini Kişi Sayısı</div>
-                    <div class="res-val" style="font-size: 32px;" id="res_pool">0</div>
+                    <div class="res-val" style="font-size: 36px; color: var(--text-main);" id="res_pool">0</div>
                     <div class="res-msg" id="res_msg"></div>
                 </div>
-                <button class="btn" style="width: 100%; margin-top: 10px;" onclick="location.reload()">Sistemi Sıfırla</button>
+                <button class="btn" style="width: 100%;" onclick="location.reload()">Sistemi Sıfırla</button>
             </div>
 
         </div>
 
+        <!-- Navigation Bar -->
         <div class="nav-bar hidden" id="nav_bar">
             <button class="btn" onclick="goBack()">Geri</button>
             <button class="btn primary" id="btn_next" onclick="goNext()">Devam</button>
@@ -292,73 +348,46 @@
     </div>
 
     <script>
-        // --- Core Data ---
         const appData = {
-            turkey_male_population: 42500000,
-            turkey_female_population: 42800000,
+            turkey_male_population: 42500000, turkey_female_population: 42800000,
             height: { male_mean: 174, male_std: 7, female_mean: 162, female_std: 6 },
-            income_median: 25000,
-            demographics: { syrian: 0.027, kurdish: 0.180, black: 0.018 }
+            income_median: 25000, demographics: { syrian: 0.027, kurdish: 0.180, black: 0.018 }
         };
 
         const MEMES = {
-            police: { img: "https://i.imgflip.com/2xtbnt.jpg", text: "18 yaş altı mı? FBI OPEN UP!" },
-            suspicious: { img: "https://i.imgflip.com/1g8my4.jpg", text: "Aralık çok açık... Amacın nedir?" }, // Fry / Math Lady suspicious
-            married: { img: "https://i.imgflip.com/392d42.jpg", text: "Başkalarının yuvası üzerine planlar ha?" },
-            obese: { img: "https://i.imgflip.com/1ur9b0.jpg", text: "Fit birini arıyorsun demek." },
-            syrian: { img: "https://i.imgflip.com/21p.jpg", text: "Sınır kapıları kapanıyor..." },
-            kurdish: { img: "https://i.imgflip.com/4bky.jpg", text: "Etnik filtreleme devrede." },
-            delusion: { img: "https://i.imgflip.com/3i1h4z.jpg", text: "" }
+            police: { img: "https://i.imgflip.com/2xtbnt.jpg", text: "Alo, Silivri mi? 18 yaş altı tespit edildi." }, // Wait that's illegal
+            suspicious: { img: "https://i.imgflip.com/1g8my4.jpg", text: "Miras avcısı tespit edildi..." }, // Fry Squinting
+            married: { img: "https://i.imgflip.com/392d42.jpg", text: "Yuva yıkanın yuvası olmaz derler." }, // Evil Kermit
+            obese: { img: "https://i.imgflip.com/1ur9b0.jpg", text: "Kendin spor salonuna gidiyor musun peki?" }, // Monkey Puppet
+            syrian: { img: "https://i.imgflip.com/21p.jpg", text: "Hudut namustur filtresi aktif." }, // This is fine
+            kurdish: { img: "https://i.imgflip.com/4bky.jpg", text: "Aşiret paket istenmiyor..." }, // Obama not bad
+            tall: { img: "https://i.imgflip.com/43a45p.jpg", text: "TR Ortalaması belli, sırık mı arıyorsun?" }, // Leo laughing
+            rich: { img: "https://i.imgflip.com/1irf4y.jpg", text: "Ayda 120k... CEO mu arıyorsun?" }, // Roll safe
+            rich_extreme: { img: "https://i.imgflip.com/2pfc4o.jpg", text: "200k+ mı? Direkt Koç Holding'e damat/gelin git." }, // Homer money tears
+            delusion: { img: "https://i.imgflip.com/3i1h4z.jpg", text: "Gerçeklerle yüzleşme vakti." } // Clown makeup
         };
 
-        const chaosGenders = ["Agender", "Bigender", "Demiboy", "Genderfluid", "Non-binary", "Pangender", "Two-Spirit", "Xenogender", "Astralgender", "Cassgender", "Epicene", "Neutrois"];
+        const chaosGenders = ["Agender", "Bigender", "Demiboy", "Genderfluid", "Non-binary", "Pangender", "Two-Spirit", "Xenogender", "Astralgender", "Cassgender", "Epicene", "Neutrois", "Polygender", "Trigender"];
 
         let currentStep = 1;
         let uGender = null, uAge = 25, tGender = null;
         let memeTimeout = null;
         let lastTriggeredMeme = null;
 
-        // --- iOS Age Wheel Setup ---
-        const ageList = document.getElementById('user_age_list');
-        for(let i=18; i<=80; i++){
-            let li = document.createElement('li');
-            li.innerText = i; li.dataset.val = i;
-            ageList.appendChild(li);
-        }
-
-        // Delay selection until DOM is fully painted
-        setTimeout(() => {
-            let defLi = ageList.querySelector('[data-val="25"]');
-            if(defLi) defLi.scrollIntoView({ block: 'center' });
-        }, 100);
-
-        ageList.addEventListener('scroll', () => {
-            let centerLine = ageList.getBoundingClientRect().top + (ageList.clientHeight / 2);
-            let items = ageList.querySelectorAll('li');
-            let closest = null; let minDiff = Infinity;
-            
-            items.forEach(item => {
-                let rect = item.getBoundingClientRect();
-                let itemCenter = rect.top + (rect.height / 2);
-                let diff = Math.abs(centerLine - itemCenter);
-                if(diff < minDiff) { minDiff = diff; closest = item; }
-            });
-
-            items.forEach(i => i.classList.remove('selected'));
-            if(closest) {
-                closest.classList.add('selected');
-                uAge = parseInt(closest.dataset.val);
-            }
-        });
-
-        // --- Meme Trigger Logic (Non-blocking Display) ---
-        function triggerMeme(type, force = false) {
-            if (!force && lastTriggeredMeme === type && document.getElementById('meme_toast').classList.contains('show')) return;
-            lastTriggeredMeme = type;
-            
+        // --- Non-Blocking Meme Toast with Debounce ---
+        function triggerMeme(type, force = false, customText = null) {
             const toast = document.getElementById('meme_toast');
+            
+            // Prevent visual glitching if the same meme is already showing during slider drag
+            if (lastTriggeredMeme === type && toast.classList.contains('show')) {
+                clearTimeout(memeTimeout);
+                memeTimeout = setTimeout(() => { toast.classList.remove('show'); lastTriggeredMeme = null; }, 3500);
+                return;
+            }
+
+            lastTriggeredMeme = type;
             document.getElementById('meme_img').src = MEMES[type].img;
-            document.getElementById('meme_text').innerText = MEMES[type].text;
+            document.getElementById('meme_text').innerText = customText || MEMES[type].text;
             
             toast.classList.add('show');
             clearTimeout(memeTimeout);
@@ -380,8 +409,7 @@
             const nav = document.getElementById('nav_bar');
             const btnNext = document.getElementById('btn_next');
             
-            // Show Navigation bar between Step 2 and Step 7 (except chaos step 1.5)
-            if ((step >= 2 && step <= 7) && step !== '1_5') {
+            if (step >= 2 && step <= 7 && step !== '1_5') {
                 nav.classList.remove('hidden');
             } else {
                 nav.classList.add('hidden');
@@ -389,18 +417,21 @@
 
             if (step === 7) {
                 btnNext.innerText = "Sistemi Çalıştır";
-                btnNext.className = "btn danger"; // Using danger class for red action button
+                btnNext.className = "btn danger"; 
             } else {
                 btnNext.innerText = "Devam";
                 btnNext.className = "btn primary";
             }
             
-            document.getElementById('main_header').style.opacity = (step === 'loading' || step === 'result') ? '0' : '1';
+            document.getElementById('main_header').style.opacity = (step >= 8) ? '0' : '1';
+            
+            // Scroll to top of content area on step change
+            document.getElementById('content_area').scrollTop = 0;
         }
 
         window.goBack = function() {
-            if (currentStep === 3) currentStep = 2; // Target Gender -> User Age
-            else if (currentStep === 2) currentStep = 1; // User Age -> User Gender
+            if (currentStep === 3) currentStep = 2; 
+            else if (currentStep === 2) currentStep = 1; 
             else if (currentStep > 1) currentStep--;
             showStep(currentStep);
         }
@@ -413,8 +444,13 @@
             currentStep++; showStep(currentStep);
         }
 
-        // --- User Selections ---
-        window.setUserGender = (g) => { uGender = g; currentStep = 2; showStep(2); };
+        // --- User Identification ---
+        window.setUserGender = (g) => { 
+            uGender = g; 
+            const btn = document.getElementById('btn_chaos');
+            btn.innerText = "Diğer"; btn.style.color = "var(--text-muted)"; btn.style.borderColor = "var(--border)";
+            currentStep = 2; showStep(2); 
+        };
         
         window.openChaosMenu = () => {
             currentStep = '1_5'; showStep('1_5');
@@ -422,7 +458,15 @@
             grid.innerHTML = '';
             chaosGenders.sort(() => 0.5 - Math.random()).forEach(g => {
                 let b = document.createElement('div'); b.className = 'chaos-btn'; b.innerText = g;
-                b.onclick = () => { alert("TÜİK veritabanında bulunamadı. Zorla Binary havuzuna atanıyorsunuz."); setUserGender('female'); };
+                b.onclick = () => { 
+                    triggerMeme('delusion', true, "TÜİK'te kaydın yok, istatistiksel olarak 'Kadın' havuzuna atandın.");
+                    uGender = 'female';
+                    const chaosBtn = document.getElementById('btn_chaos');
+                    chaosBtn.innerText = `Diğer (${g})`;
+                    chaosBtn.style.color = "var(--accent)";
+                    chaosBtn.style.borderColor = "var(--accent)";
+                    setTimeout(() => { currentStep = 2; showStep(2); }, 500); 
+                };
                 grid.appendChild(b);
             });
         };
@@ -447,7 +491,52 @@
             currentStep = 4; showStep(4);
         };
 
-        // --- Slider Logics ---
+        // --- Mouse Drag Logic for Age Wheel ---
+        const ageList = document.getElementById('user_age_list');
+        for(let i=18; i<=80; i++){
+            let li = document.createElement('li'); li.innerText = i; li.dataset.val = i;
+            ageList.appendChild(li);
+        }
+
+        let isDragging = false; let startY, scrollTop;
+        
+        ageList.addEventListener('mousedown', (e) => {
+            isDragging = true; startY = e.pageY - ageList.offsetTop; scrollTop = ageList.scrollTop;
+            ageList.style.scrollSnapType = 'none'; ageList.style.cursor = 'grabbing';
+        });
+        ageList.addEventListener('mouseleave', () => {
+            if(isDragging) { isDragging = false; ageList.style.scrollSnapType = 'y mandatory'; ageList.style.cursor = 'grab'; }
+        });
+        ageList.addEventListener('mouseup', () => {
+            isDragging = false; ageList.style.scrollSnapType = 'y mandatory'; ageList.style.cursor = 'grab';
+            ageList.scrollBy(0, 1); ageList.scrollBy(0, -1); 
+        });
+        ageList.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const walk = ((e.pageY - ageList.offsetTop) - startY) * 1.5; 
+            ageList.scrollTop = scrollTop - walk;
+        });
+
+        ageList.addEventListener('scroll', () => {
+            let centerLine = ageList.getBoundingClientRect().top + (ageList.clientHeight / 2);
+            let items = ageList.querySelectorAll('li');
+            let closest = null; let minDiff = Infinity;
+            items.forEach(item => {
+                let itemCenter = item.getBoundingClientRect().top + (item.getBoundingClientRect().height / 2);
+                let diff = Math.abs(centerLine - itemCenter);
+                if(diff < minDiff) { minDiff = diff; closest = item; }
+            });
+            items.forEach(i => i.classList.remove('selected'));
+            if(closest) { closest.classList.add('selected'); uAge = parseInt(closest.dataset.val); }
+        });
+
+        setTimeout(() => {
+            let defLi = ageList.querySelector('[data-val="25"]');
+            if(defLi) defLi.scrollIntoView({ block: 'center' });
+        }, 100);
+
+        // --- Range Sliders ---
         function setFill(elId, minIn, maxIn) {
             let minP = ((minIn.value - minIn.min) / (minIn.max - minIn.min)) * 100;
             let maxP = ((maxIn.value - minIn.min) / (minIn.max - minIn.min)) * 100;
@@ -456,54 +545,62 @@
         }
 
         window.updateAge = () => {
-            let min = document.getElementById('age_min');
-            let max = document.getElementById('age_max');
-            let valMin = parseInt(min.value);
-            let valMax = parseInt(max.value);
+            let min = document.getElementById('age_min'); let max = document.getElementById('age_max');
+            let valMin = parseInt(min.value); let valMax = parseInt(max.value);
 
-            // 18 SNAP BACK & POLICE MEME
-            if (valMin < 18) {
-                min.value = 18; valMin = 18;
-                triggerMeme('police', true);
-            }
+            if (valMin < 18) { min.value = 18; valMin = 18; triggerMeme('police', true); }
             if (valMax < 18) { max.value = 18; valMax = 18; }
-
             if (valMin > valMax) { let tmp = valMin; valMin = valMax; valMax = tmp; }
+            
             document.getElementById('age_val_min').innerText = valMin;
             document.getElementById('age_val_max').innerText = valMax;
             setFill('age_fill', min, max);
 
-            // SUSPICIOUS MEME: If Target Max Age >= User Age + 15
-            if (valMax - uAge >= 15) {
-                triggerMeme('suspicious');
-            }
+            if (valMax - uAge >= 15) triggerMeme('suspicious');
         };
 
         window.updateHeight = () => {
+            let hVal = 0;
             if (uGender === 'female') {
                 let inp = document.getElementById('h_s_input');
                 document.getElementById('h_s_val').innerText = inp.value;
                 document.getElementById('h_s_fill').style.width = ((inp.value - inp.min) / (inp.max - inp.min)) * 100 + '%';
+                hVal = parseInt(inp.value);
             } else {
                 let min = document.getElementById('h_d_min'); let max = document.getElementById('h_d_max');
                 if (parseInt(min.value) > parseInt(max.value)) { let t = min.value; min.value = max.value; max.value = t; }
-                document.getElementById('h_d_val_min').innerText = min.value;
-                document.getElementById('h_d_val_max').innerText = max.value;
+                document.getElementById('h_d_val_min').innerText = min.value; document.getElementById('h_d_val_max').innerText = max.value;
                 setFill('h_d_fill', min, max);
+                hVal = parseInt(min.value);
+            }
+
+            // Height Dynamic Trigger
+            if (hVal >= 185) {
+                let avg = tGender === 'male' ? "174" : "162";
+                triggerMeme('tall', false, `TR ${tGender === 'male' ? 'Erkek' : 'Kadın'} Ortalaması ${avg} cm. Sırık mı arıyorsun?`);
             }
         };
 
         window.updateIncome = () => {
+            let iVal = 0;
             if (uGender === 'female') {
                 let inp = document.getElementById('inc_s_input');
                 document.getElementById('inc_s_val').innerText = (inp.value/1000).toFixed(0) + "k";
                 document.getElementById('inc_s_fill').style.width = ((inp.value - inp.min) / (inp.max - inp.min)) * 100 + '%';
+                iVal = parseInt(inp.value);
             } else {
                 let min = document.getElementById('inc_d_min'); let max = document.getElementById('inc_d_max');
                 if (parseInt(min.value) > parseInt(max.value)) { let t = min.value; min.value = max.value; max.value = t; }
-                document.getElementById('inc_d_val_min').innerText = (min.value/1000).toFixed(0) + "k";
-                document.getElementById('inc_d_val_max').innerText = (max.value/1000).toFixed(0) + "k";
+                document.getElementById('inc_d_val_min').innerText = (min.value/1000).toFixed(0) + "k"; document.getElementById('inc_d_val_max').innerText = (max.value/1000).toFixed(0) + "k";
                 setFill('inc_d_fill', min, max);
+                iVal = parseInt(min.value);
+            }
+
+            // Income Dynamic Trigger
+            if (iVal >= 200000) {
+                triggerMeme('rich_extreme');
+            } else if (iVal >= 120000) {
+                triggerMeme('rich');
             }
         };
 
@@ -511,13 +608,10 @@
 
         // --- Loading Sequence ---
         function startLoadingSequence() {
-            showStep('loading');
+            currentStep = 8;
+            showStep(8);
             const textEl = document.getElementById('loading_text');
-            const phases = [
-                "TÜİK veritabanına bağlanılıyor...",
-                "Toplumsal gerçeklik filtresi uygulanıyor...",
-                "Delüzyon katsayısı ölçülüyor..."
-            ];
+            const phases = ["TÜİK veritabanına bağlanılıyor...", "Toplumsal gerçeklik filtresi uygulanıyor...", "Delüzyon katsayısı ölçülüyor..."];
             
             let i = 0;
             const interval = setInterval(() => {
@@ -528,7 +622,10 @@
                     i++;
                     if (i === phases.length) {
                         clearInterval(interval);
-                        setTimeout(calculateAndShowResult, 1200);
+                        setTimeout(() => {
+                            currentStep = 9;
+                            calculateAndShowResult();
+                        }, 1200);
                     }
                 }, 300);
             }, 1200);
@@ -547,16 +644,13 @@
             let pAge = 0.18, pHeight = 1.0, pIncome = 1.0, mult = 1.0, tgtInc = 0;
 
             if (uGender === 'male') {
-                let hMin = parseInt(document.getElementById('h_d_min').value);
-                let hMax = parseInt(document.getElementById('h_d_max').value);
-                let iMin = parseInt(document.getElementById('inc_d_min').value);
-                let iMax = parseInt(document.getElementById('inc_d_max').value);
+                let hMin = parseInt(document.getElementById('h_d_min').value), hMax = parseInt(document.getElementById('h_d_max').value);
+                let iMin = parseInt(document.getElementById('inc_d_min').value), iMax = parseInt(document.getElementById('inc_d_max').value);
                 tgtInc = iMax;
                 pHeight = Math.max(0, normalCDF(hMax, tMean, tStd) - normalCDF(hMin, tMean, tStd));
                 pIncome = Math.max(0, incomeCDF(iMax, appData.income_median) - incomeCDF(iMin, appData.income_median));
             } else {
-                let hMin = parseInt(document.getElementById('h_s_input').value);
-                let iMin = parseInt(document.getElementById('inc_s_input').value);
+                let hMin = parseInt(document.getElementById('h_s_input').value), iMin = parseInt(document.getElementById('inc_s_input').value);
                 tgtInc = iMin;
                 pHeight = 1 - normalCDF(hMin, tMean, tStd);
                 pIncome = 1 - incomeCDF(iMin, appData.income_median);
@@ -581,7 +675,7 @@
             else if(jointP < 0.01) { msg = "Kendi oyununda boss arıyorsun, sokakta bulman imkansız."; triggerMeme('delusion'); }
             
             document.getElementById('res_msg').innerText = msg;
-            showStep('result');
+            showStep(9);
         }
     </script>
 </body>
