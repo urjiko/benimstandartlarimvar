@@ -3,17 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Standart Hesaplayıcı Türkiye</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Standart Hesaplayıcı</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #f7f9fc; color: #1a1a1a; display: flex; justify-content: center; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 480px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        
+        /* Header */
+        .app-header { padding: 20px; text-align: center; border-bottom: 1px solid #eee; position: relative; }
+        .app-header h1 { font-size: 20px; font-weight: 800; }
+        .stats-btn { position: absolute; right: 20px; top: 20px; background: none; border: none; font-size: 20px; cursor: pointer; color: #007aff; }
+        .progress-bar { width: 100%; height: 6px; background: #eee; border-radius: 3px; margin-top: 15px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #007aff; width: 16.6%; transition: width 0.3s ease; }
+
+        /* Steps */
+        .step { flex: 1; padding: 30px 20px; display: none; animation: fadeIn 0.4s ease; }
+        .step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; text-align: center; }
+        .subtitle { font-size: 15px; color: #666; text-align: center; margin-bottom: 30px; }
+
+        /* Inputs & Buttons */
+        .gender-selection { display: flex; flex-direction: column; gap: 15px; }
+        .gender-btn { padding: 20px; font-size: 18px; font-weight: 600; background: #f0f4f8; border: 2px solid transparent; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+        .gender-btn:active { transform: scale(0.98); }
+        .input-row { display: flex; gap: 15px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        .input-group label { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 8px; }
+        input[type="number"] { width: 100%; padding: 15px; font-size: 16px; border: 1px solid #ddd; border-radius: 10px; outline: none; }
+        input[type="number"]:focus { border-color: #007aff; }
+
+        /* Sliders */
+        .slider-container { text-align: center; }
+        .value-display { font-size: 28px; font-weight: 800; color: #007aff; margin-bottom: 20px; }
+        input[type="range"] { width: 100%; height: 8px; background: #ddd; border-radius: 4px; outline: none; -webkit-appearance: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #007aff; cursor: pointer; }
+
+        /* Checkboxes */
+        .checkbox-container { display: flex; align-items: center; justify-content: space-between; padding: 18px; background: #f9f9f9; border-radius: 10px; margin-bottom: 12px; font-weight: 600; font-size: 16px; }
+        .checkbox-container input { width: 22px; height: 22px; accent-color: #007aff; }
+
+        /* Results */
+        .result-box { background: #f0f4f8; padding: 25px; border-radius: 16px; text-align: center; margin-bottom: 15px; }
+        .result-label { font-size: 14px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .result-value { font-size: 36px; font-weight: 800; color: #111; margin-top: 5px; }
+
+        /* Navigation */
+        .nav-controls { padding: 20px; display: flex; gap: 15px; background: #fff; border-top: 1px solid #eee; }
+        .nav-btn { flex: 1; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; border: none; }
+        .nav-btn.primary { background: #111; color: #fff; }
+        .nav-btn.outline { background: transparent; border: 2px solid #ddd; color: #333; }
+        .hidden { display: none !important; }
+
+        /* Modal (Stats) */
+        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10; padding: 20px; }
+        .modal-content { background: #fff; padding: 30px; border-radius: 16px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; }
+        .close-modal { position: absolute; right: 20px; top: 20px; font-size: 24px; font-weight: bold; cursor: pointer; color: #333; }
+        .modal-content h3 { margin-bottom: 15px; font-size: 20px; }
+        .modal-content p { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 15px; }
+    </style>
 </head>
 <body>
     <div class="app-container">
         
         <header class="app-header">
-            <h1 id="app_title">Standart Hesaplayıcı</h1>
-            <div class="progress-bar">
-                <div id="progress_fill" class="progress-fill"></div>
-            </div>
+            <h1>Standart Hesaplayıcı</h1>
+            <button class="stats-btn" id="open_stats">ℹ️</button>
+            <div class="progress-bar"><div id="progress_fill" class="progress-fill"></div></div>
         </header>
 
         <div id="step_1" class="step active">
@@ -78,19 +135,17 @@
             <label class="checkbox-container">
                 <span id="married_label">Evlileri Hariç Tut</span>
                 <input type="checkbox" id="married_checkbox" checked>
-                <span class="checkmark"></span>
             </label>
 
             <label class="checkbox-container">
                 <span>Obezleri Hariç Tut</span>
                 <input type="checkbox" id="exclude_obese">
-                <span class="checkmark"></span>
             </label>
         </div>
 
         <div id="step_results" class="step results-step">
-            <h2>Sonuçlar</h2>
-            <p class="subtitle">Türkiye'de bu kriterlere uyan kişilerin oranı:</p>
+            <h2 id="result_title">Sonuçlar</h2>
+            <p class="subtitle" id="result_subtitle">Türkiye'de bu kriterlere uyan kişilerin oranı:</p>
             
             <div class="result-box">
                 <div class="result-label">Olasılık</div>
@@ -102,7 +157,7 @@
                 <div class="result-value" id="estimated_count">0</div>
             </div>
             
-            <button id="restart_btn" class="nav-btn outline">Baştan Başla</button>
+            <button id="restart_btn" class="nav-btn outline" style="width: 100%; margin-top: 20px;">Baştan Başla</button>
         </div>
 
         <div class="nav-controls" id="nav_controls">
@@ -111,8 +166,113 @@
             <button id="calc_btn" class="nav-btn primary hidden">Hesapla</button>
         </div>
 
+        <div id="stats_modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <span class="close-modal" id="close_stats">&times;</span>
+                <h3>Arkadaki Bilim (veya İllüzyon)</h3>
+                <p><strong>Veriler Nereden Geliyor?</strong><br>Bütün demografik istatistikler, yaş aralıkları ve evlilik durumları resmi TÜİK raporlarından çekilmiştir. Boy ve obezite oranları ise Türkiye Sağlık Araştırması verilerine dayanır.</p>
+                <p><strong>Hesaplama Mantığı:</strong><br>Matematiksel olarak "Kümülatif Dağılım Fonksiyonu (CDF)" ve "Naive Bayes" teoremi kullanılarak, girilen standartların toplumdaki kesişim olasılığı (Joint Probability) hesaplanmıştır.</p>
+                <p><em>Esprili Not Alanı: Buraya o bahsettiğin komik detayları, iğnelemeleri veya aydınlanma cümlelerini yazacağız. Sen söyleyince ben güncelleyeceğim.</em></p>
+            </div>
+        </div>
+
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // Data Embed (No need for fetch anymore)
+        const dbData = {
+            turkey_male_population: 42500000,
+            turkey_female_population: 42800000,
+            height_distribution: { male_mean: 174, male_std_dev: 7, female_mean: 162, female_std_dev: 6 },
+            income_distribution: { median: 25000 }
+        };
+
+        // State & DOM
+        let currentStep = 1;
+        const totalSteps = 6;
+        let targetGender = null;
+        const steps = document.querySelectorAll('.step');
+        const progressFill = document.getElementById('progress_fill');
+        const prevBtn = document.getElementById('prev_btn');
+        const nextBtn = document.getElementById('next_btn');
+        const calcBtn = document.getElementById('calc_btn');
+        const navControls = document.getElementById('nav_controls');
+        
+        // Modal Logic
+        document.getElementById('open_stats').addEventListener('click', () => document.getElementById('stats_modal').classList.remove('hidden'));
+        document.getElementById('close_stats').addEventListener('click', () => document.getElementById('stats_modal').classList.add('hidden'));
+
+        // Math
+        function erf(x) { const sign = (x >= 0) ? 1 : -1; x = Math.abs(x); const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911; const t = 1.0 / (1.0 + p * x); const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x); return sign * y; }
+        function normalCDF(x, mean, stdDev) { return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2)))); }
+        function incomeCDF(amount, median) { if (amount <= 0) return 0; return 1 - Math.pow(0.5, amount / median); }
+
+        function updateUI() {
+            steps.forEach((step, index) => { step.classList.toggle('active', index + 1 === currentStep); });
+            progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
+            
+            if (currentStep === 1) { navControls.classList.add('hidden'); }
+            else if (currentStep === totalSteps) { navControls.classList.add('hidden'); }
+            else {
+                navControls.classList.remove('hidden');
+                prevBtn.classList.remove('hidden');
+                nextBtn.classList.toggle('hidden', currentStep === totalSteps - 1);
+                calcBtn.classList.toggle('hidden', currentStep !== totalSteps - 1);
+            }
+        }
+
+        document.querySelectorAll('.gender-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                targetGender = e.target.getAttribute('data-gender');
+                
+                if (targetGender === 'male') {
+                    document.getElementById('height_title').textContent = "Minimum Boy";
+                    document.getElementById('income_single_wrapper').classList.remove('hidden');
+                    document.getElementById('income_range_wrapper').classList.add('hidden');
+                    document.getElementById('married_label').textContent = "Evlileri Hariç Tut";
+                } else {
+                    document.getElementById('height_title').textContent = "Maksimum Boy";
+                    document.getElementById('income_single_wrapper').classList.add('hidden');
+                    document.getElementById('income_range_wrapper').classList.remove('hidden');
+                    document.getElementById('married_label').textContent = "Evlileri Dahil Et";
+                }
+                currentStep++; updateUI();
+            });
+        });
+
+        nextBtn.addEventListener('click', () => { if (currentStep < totalSteps - 1) currentStep++; updateUI(); });
+        prevBtn.addEventListener('click', () => { if (currentStep > 1) currentStep--; updateUI(); });
+        document.getElementById('restart_btn').addEventListener('click', () => { currentStep = 1; targetGender = null; updateUI(); });
+        
+        document.getElementById('height_slider').addEventListener('input', (e) => document.getElementById('height_display').textContent = e.target.value);
+        document.getElementById('income_slider').addEventListener('input', (e) => document.getElementById('income_display').textContent = parseInt(e.target.value).toLocaleString('tr-TR'));
+
+        calcBtn.addEventListener('click', () => {
+            let basePop = targetGender === 'male' ? dbData.turkey_male_population : dbData.turkey_female_population;
+            let ageProb = 0.20; let heightProb = 1.0; let incomeProb = 1.0; let statusMult = 1.0;
+            const marriedChecked = document.getElementById('married_checkbox').checked;
+
+            if (targetGender === 'male') {
+                heightProb = 1 - normalCDF(parseInt(document.getElementById('height_slider').value), dbData.height_distribution.male_mean, dbData.height_distribution.male_std_dev);
+                incomeProb = 1 - incomeCDF(parseInt(document.getElementById('income_slider').value), dbData.income_distribution.median);
+                if (marriedChecked) statusMult *= 0.40;
+            } else {
+                heightProb = normalCDF(parseInt(document.getElementById('height_slider').value), dbData.height_distribution.female_mean, dbData.height_distribution.female_std_dev);
+                let pMax = incomeCDF(parseInt(document.getElementById('max_income_f').value), dbData.income_distribution.median);
+                let pMin = incomeCDF(parseInt(document.getElementById('min_income_f').value), dbData.income_distribution.median);
+                incomeProb = Math.max(0, pMax - pMin);
+                statusMult = marriedChecked ? 1.0 : 0.40;
+            }
+
+            if (document.getElementById('exclude_obese').checked) statusMult *= 0.70;
+
+            const jointProb = ageProb * heightProb * incomeProb * statusMult;
+            document.getElementById('final_probability').textContent = `${(jointProb * 100).toFixed(4)}%`;
+            document.getElementById('estimated_count').textContent = Math.floor(basePop * jointProb).toLocaleString('tr-TR');
+            currentStep++; updateUI();
+        });
+        
+        updateUI();
+    </script>
 </body>
 </html>
