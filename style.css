@@ -1,0 +1,158 @@
+/* style.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f4f9;
+    color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 500px;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-align: center;
+    color: #111;
+}
+
+p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+label span {
+    color: #0070f3;
+    font-weight: 800;
+}
+
+select, input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+select:focus, input[type="number"]:focus {
+    border-color: #0070f3;
+}
+
+.age-inputs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.age-inputs span {
+    font-size: 14px;
+    color: #666;
+    font-weight: 600;
+}
+
+input[type="range"] {
+    width: 100%;
+    accent-color: #0070f3;
+    cursor: pointer;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-group label {
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #0070f3;
+}
+
+button {
+    width: 100%;
+    padding: 16px;
+    background-color: #111;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #333;
+}
+
+.results-section {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px dashed #eee;
+    text-align: center;
+}
+
+.results-section h2 {
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.results-section p {
+    font-size: 18px;
+    color: #111;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.results-section span {
+    font-size: 24px;
+    font-weight: 800;
+    color: #e53e3e; /* Kırmızımsı vurgu rengi */
+}
+
+.hidden {
+    display: none;
+}
