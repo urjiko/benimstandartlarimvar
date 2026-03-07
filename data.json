@@ -1,0 +1,17 @@
+{
+  "turkey_male_population": 42000000,
+  "age_distribution": {
+    "18_24": 0.12,
+    "25_29": 0.09,
+    "30_34": 0.09
+  },
+  "height_distribution": {
+    "mean": 174,
+    "std_dev": 7
+  },
+  "income_distribution": {
+    "top_1_percent": 150000,
+    "top_10_percent": 75000,
+    "median": 25000
+  }
+}
