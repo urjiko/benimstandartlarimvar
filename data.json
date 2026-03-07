@@ -1,17 +1,18 @@
 {
-  "turkey_male_population": 42000000,
-  "age_distribution": {
-    "18_24": 0.12,
-    "25_29": 0.09,
-    "30_34": 0.09
-  },
+  "turkey_male_population": 42500000,
+  "turkey_female_population": 42800000,
   "height_distribution": {
-    "mean": 174,
-    "std_dev": 7
+    "male_mean": 174,
+    "male_std_dev": 7,
+    "female_mean": 162,
+    "female_std_dev": 6
   },
   "income_distribution": {
-    "top_1_percent": 150000,
-    "top_10_percent": 75000,
     "median": 25000
+  },
+  "demographics": {
+    "syrian_ratio": 0.027,
+    "kurdish_ratio": 0.180,
+    "black_ratio": 0.018
   }
 }
