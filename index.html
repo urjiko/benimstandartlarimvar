@@ -7,61 +7,46 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: #f7f9fc; color: #1a1a1a; display: flex; justify-content: center; min-height: 100vh; }
-        .app-container { width: 100%; max-width: 480px; background: #fff; min-height: 100vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+        body { background-color: #111; color: #fff; display: flex; justify-content: center; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 480px; background: #1a1a1a; min-height: 100vh; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
         
         /* Header */
-        .app-header { padding: 20px; text-align: center; border-bottom: 1px solid #eee; position: relative; }
-        .app-header h1 { font-size: 20px; font-weight: 800; }
-        .stats-btn { position: absolute; right: 20px; top: 20px; background: none; border: none; font-size: 20px; cursor: pointer; color: #007aff; }
-        .progress-bar { width: 100%; height: 6px; background: #eee; border-radius: 3px; margin-top: 15px; overflow: hidden; }
-        .progress-fill { height: 100%; background: #007aff; width: 16.6%; transition: width 0.3s ease; }
+        .app-header { padding: 20px; text-align: center; border-bottom: 1px solid #333; }
+        .app-header h1 { font-size: 20px; font-weight: 800; color: #fff; }
 
         /* Steps */
-        .step { flex: 1; padding: 30px 20px; display: none; animation: fadeIn 0.4s ease; }
+        .step { flex: 1; padding: 40px 20px; display: none; animation: fadeIn 0.4s ease; }
         .step.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        h2 { font-size: 24px; font-weight: 800; margin-bottom: 8px; text-align: center; }
-        .subtitle { font-size: 15px; color: #666; text-align: center; margin-bottom: 30px; }
-
-        /* Inputs & Buttons */
-        .gender-selection { display: flex; flex-direction: column; gap: 15px; }
-        .gender-btn { padding: 20px; font-size: 18px; font-weight: 600; background: #f0f4f8; border: 2px solid transparent; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
-        .gender-btn:active { transform: scale(0.98); }
-        .input-row { display: flex; gap: 15px; }
-        .input-group { flex: 1; display: flex; flex-direction: column; }
-        .input-group label { font-size: 14px; font-weight: 600; color: #555; margin-bottom: 8px; }
-        input[type="number"] { width: 100%; padding: 15px; font-size: 16px; border: 1px solid #ddd; border-radius: 10px; outline: none; }
+        
+        h2 { font-size: 32px; font-weight: 800; margin-bottom: 30px; text-align: center; color: #fff; }
+        
+        /* Buttons */
+        .choice-grid { display: flex; flex-direction: column; gap: 15px; }
+        .choice-btn { padding: 20px; font-size: 18px; font-weight: 800; background: #333; color: #fff; border: 2px solid #444; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+        .choice-btn:hover { background: #444; border-color: #666; }
+        .choice-btn.disabled-btn { background: #222; color: #666; border-color: #222; cursor: not-allowed; }
+        
+        /* Age Inputs & Emoji */
+        .input-group { margin-bottom: 20px; text-align: center; }
+        .input-group label { display: block; font-size: 14px; font-weight: 600; color: #aaa; margin-bottom: 8px; }
+        input[type="number"] { width: 100%; max-width: 200px; padding: 15px; font-size: 24px; font-weight: 800; text-align: center; background: #222; color: #fff; border: 2px solid #444; border-radius: 10px; outline: none; }
         input[type="number"]:focus { border-color: #007aff; }
+        
+        .emoji-display { font-size: 80px; text-align: center; margin-top: 20px; transition: all 0.3s ease; }
 
-        /* Sliders */
-        .slider-container { text-align: center; }
-        .value-display { font-size: 28px; font-weight: 800; color: #007aff; margin-bottom: 20px; }
-        input[type="range"] { width: 100%; height: 8px; background: #ddd; border-radius: 4px; outline: none; -webkit-appearance: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #007aff; cursor: pointer; }
+        /* Police Modal */
+        .police-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; flex-direction: column; }
+        .police-content { background: #111; padding: 40px 20px; border-radius: 16px; text-align: center; border: 4px solid #fff; max-width: 400px; }
+        .police-content h3 { color: #ff3333; font-size: 28px; margin-bottom: 15px; font-weight: 900; }
+        .police-content p { font-size: 18px; color: #fff; margin-bottom: 30px; line-height: 1.5; font-weight: 600; }
+        .police-btn-row { display: flex; flex-direction: column; gap: 15px; }
+        .btn-joke { background: #fff; color: #111; padding: 15px; font-weight: 800; border-radius: 8px; border: none; cursor: pointer; font-size: 16px; }
+        .btn-illegal { background: #333; color: #666; padding: 15px; font-weight: 800; border-radius: 8px; border: none; cursor: not-allowed; font-size: 16px; }
 
-        /* Checkboxes */
-        .checkbox-container { display: flex; align-items: center; justify-content: space-between; padding: 18px; background: #f9f9f9; border-radius: 10px; margin-bottom: 12px; font-weight: 600; font-size: 16px; }
-        .checkbox-container input { width: 22px; height: 22px; accent-color: #007aff; }
-
-        /* Results */
-        .result-box { background: #f0f4f8; padding: 25px; border-radius: 16px; text-align: center; margin-bottom: 15px; }
-        .result-label { font-size: 14px; color: #555; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-        .result-value { font-size: 36px; font-weight: 800; color: #111; margin-top: 5px; }
-
-        /* Navigation */
-        .nav-controls { padding: 20px; display: flex; gap: 15px; background: #fff; border-top: 1px solid #eee; }
-        .nav-btn { flex: 1; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 10px; cursor: pointer; border: none; }
-        .nav-btn.primary { background: #111; color: #fff; }
-        .nav-btn.outline { background: transparent; border: 2px solid #ddd; color: #333; }
         .hidden { display: none !important; }
-
-        /* Modal (Stats) */
-        .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10; padding: 20px; }
-        .modal-content { background: #fff; padding: 30px; border-radius: 16px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; }
-        .close-modal { position: absolute; right: 20px; top: 20px; font-size: 24px; font-weight: bold; cursor: pointer; color: #333; }
-        .modal-content h3 { margin-bottom: 15px; font-size: 20px; }
-        .modal-content p { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 15px; }
+        .nav-controls { padding: 20px; text-align: center; }
+        .next-btn { padding: 15px 40px; font-size: 18px; font-weight: 800; background: #007aff; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -69,210 +54,137 @@
         
         <header class="app-header">
             <h1>Standart Hesaplayıcı</h1>
-            <button class="stats-btn" id="open_stats">ℹ️</button>
-            <div class="progress-bar"><div id="progress_fill" class="progress-fill"></div></div>
         </header>
 
         <div id="step_1" class="step active">
-            <h2>Kimi arıyorsun?</h2>
-            <div class="gender-selection">
-                <button class="gender-btn" data-gender="male">Erkek Arıyorum</button>
-                <button class="gender-btn" data-gender="female">Kadın Arıyorum</button>
+            <h2>Ben bir,</h2>
+            <div class="choice-grid">
+                <button class="choice-btn" onclick="setUserGender('female')">Kadınım</button>
+                <button class="choice-btn" onclick="setUserGender('male')">Erkeğim</button>
+                <button class="choice-btn" onclick="alert('Üzgünüm bu verileri hesaplayamıyoruz.')">Transım</button>
             </div>
         </div>
 
         <div id="step_2" class="step">
-            <h2>Adayın Yaşı</h2>
-            <p class="subtitle">Hangi yaş aralığında olmalı?</p>
-            <div class="input-row">
-                <div class="input-group">
-                    <label>Minimum</label>
-                    <input type="number" id="min_age" min="18" max="80" value="20">
-                </div>
-                <div class="input-group">
-                    <label>Maksimum</label>
-                    <input type="number" id="max_age" min="18" max="80" value="30">
-                </div>
+            <h2>...arıyorum.</h2>
+            <div class="choice-grid">
+                <button class="choice-btn" onclick="setTargetGender('male')">Erkek</button>
+                <button class="choice-btn" onclick="setTargetGender('female')">Kadın</button>
             </div>
         </div>
 
         <div id="step_3" class="step">
-            <h2 id="height_title">Minimum Boy</h2>
-            <p class="subtitle">Boyu en az/en çok kaç cm olmalı?</p>
-            <div class="slider-container">
-                <div class="value-display"><span id="height_display">175</span> cm</div>
-                <input type="range" id="height_slider" min="140" max="210" value="175">
+            <h2>Yaş Aralığı</h2>
+            
+            <div class="input-group">
+                <label>Minimum Yaş</label>
+                <input type="number" id="min_age" value="20">
+            </div>
+            
+            <div class="input-group">
+                <label>Maksimum Yaş</label>
+                <input type="number" id="max_age" value="25">
+            </div>
+
+            <div class="emoji-display" id="reaction_emoji">😐</div>
+
+            <div class="nav-controls">
+                <button class="next-btn" onclick="goToNext()">İleri</button>
             </div>
         </div>
 
         <div id="step_4" class="step">
-            <h2>Aylık Gelir (TL)</h2>
-            <p class="subtitle">Ekonomik beklentin nedir?</p>
-            
-            <div id="income_single_wrapper">
-                <div class="value-display"><span id="income_display">50.000</span> TL</div>
-                <input type="range" id="income_slider" min="17000" max="500000" step="5000" value="50000">
-            </div>
+            <h2>Diğer Kriterler (Yapım Aşamasında)</h2>
+            <p style="text-align: center; color: #888;">Bu aşamaya daha sonra özellikleri ekleyeceğiz.</p>
+        </div>
 
-            <div id="income_range_wrapper" class="hidden">
-                <div class="input-row">
-                    <div class="input-group">
-                        <label>Minimum</label>
-                        <input type="number" id="min_income_f" min="0" step="1000" value="17000">
-                    </div>
-                    <div class="input-group">
-                        <label>Maksimum</label>
-                        <input type="number" id="max_income_f" min="17000" step="1000" value="50000">
-                    </div>
+        <div id="police_modal" class="police-modal hidden">
+            <div class="police-content">
+                <h3>🚔 DİKKAT!</h3>
+                <p>18 yaşının altını da araştırabilirim ama önce emniyete haber vermem gerekiyor. Emin misin?</p>
+                <div class="police-btn-row">
+                    <button class="btn-joke" onclick="closePoliceModal()">Şaka şaka (Geri Dön)</button>
+                    <button class="btn-illegal" disabled>Ara sıkıntı yok</button>
                 </div>
-            </div>
-        </div>
-
-        <div id="step_5" class="step">
-            <h2>Ekstra Kriterler</h2>
-            <p class="subtitle">Bu özellikleri filtrele.</p>
-            
-            <label class="checkbox-container">
-                <span id="married_label">Evlileri Hariç Tut</span>
-                <input type="checkbox" id="married_checkbox" checked>
-            </label>
-
-            <label class="checkbox-container">
-                <span>Obezleri Hariç Tut</span>
-                <input type="checkbox" id="exclude_obese">
-            </label>
-        </div>
-
-        <div id="step_results" class="step results-step">
-            <h2 id="result_title">Sonuçlar</h2>
-            <p class="subtitle" id="result_subtitle">Türkiye'de bu kriterlere uyan kişilerin oranı:</p>
-            
-            <div class="result-box">
-                <div class="result-label">Olasılık</div>
-                <div class="result-value" id="final_probability">0%</div>
-            </div>
-
-            <div class="result-box">
-                <div class="result-label">Tahmini Kişi Sayısı</div>
-                <div class="result-value" id="estimated_count">0</div>
-            </div>
-            
-            <button id="restart_btn" class="nav-btn outline" style="width: 100%; margin-top: 20px;">Baştan Başla</button>
-        </div>
-
-        <div class="nav-controls" id="nav_controls">
-            <button id="prev_btn" class="nav-btn outline hidden">Geri</button>
-            <button id="next_btn" class="nav-btn primary hidden">İleri</button>
-            <button id="calc_btn" class="nav-btn primary hidden">Hesapla</button>
-        </div>
-
-        <div id="stats_modal" class="modal-overlay hidden">
-            <div class="modal-content">
-                <span class="close-modal" id="close_stats">&times;</span>
-                <h3>Arkadaki Bilim (veya İllüzyon)</h3>
-                <p><strong>Veriler Nereden Geliyor?</strong><br>Bütün demografik istatistikler, yaş aralıkları ve evlilik durumları resmi TÜİK raporlarından çekilmiştir. Boy ve obezite oranları ise Türkiye Sağlık Araştırması verilerine dayanır.</p>
-                <p><strong>Hesaplama Mantığı:</strong><br>Matematiksel olarak "Kümülatif Dağılım Fonksiyonu (CDF)" ve "Naive Bayes" teoremi kullanılarak, girilen standartların toplumdaki kesişim olasılığı (Joint Probability) hesaplanmıştır.</p>
-                <p><em>Esprili Not Alanı: Buraya o bahsettiğin komik detayları, iğnelemeleri veya aydınlanma cümlelerini yazacağız. Sen söyleyince ben güncelleyeceğim.</em></p>
             </div>
         </div>
 
     </div>
 
     <script>
-        // Data Embed (No need for fetch anymore)
-        const dbData = {
-            turkey_male_population: 42500000,
-            turkey_female_population: 42800000,
-            height_distribution: { male_mean: 174, male_std_dev: 7, female_mean: 162, female_std_dev: 6 },
-            income_distribution: { median: 25000 }
-        };
-
-        // State & DOM
-        let currentStep = 1;
-        const totalSteps = 6;
-        let targetGender = null;
-        const steps = document.querySelectorAll('.step');
-        const progressFill = document.getElementById('progress_fill');
-        const prevBtn = document.getElementById('prev_btn');
-        const nextBtn = document.getElementById('next_btn');
-        const calcBtn = document.getElementById('calc_btn');
-        const navControls = document.getElementById('nav_controls');
+        let currentUserGender = null;
+        let currentTargetGender = null;
         
-        // Modal Logic
-        document.getElementById('open_stats').addEventListener('click', () => document.getElementById('stats_modal').classList.remove('hidden'));
-        document.getElementById('close_stats').addEventListener('click', () => document.getElementById('stats_modal').classList.add('hidden'));
+        const minAgeInput = document.getElementById('min_age');
+        const maxAgeInput = document.getElementById('max_age');
+        const emojiDisplay = document.getElementById('reaction_emoji');
+        const policeModal = document.getElementById('police_modal');
 
-        // Math
-        function erf(x) { const sign = (x >= 0) ? 1 : -1; x = Math.abs(x); const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911; const t = 1.0 / (1.0 + p * x); const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x); return sign * y; }
-        function normalCDF(x, mean, stdDev) { return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2)))); }
-        function incomeCDF(amount, median) { if (amount <= 0) return 0; return 1 - Math.pow(0.5, amount / median); }
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.getElementById('step_' + stepNumber).classList.add('active');
+        }
 
-        function updateUI() {
-            steps.forEach((step, index) => { step.classList.toggle('active', index + 1 === currentStep); });
-            progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
-            
-            if (currentStep === 1) { navControls.classList.add('hidden'); }
-            else if (currentStep === totalSteps) { navControls.classList.add('hidden'); }
-            else {
-                navControls.classList.remove('hidden');
-                prevBtn.classList.remove('hidden');
-                nextBtn.classList.toggle('hidden', currentStep === totalSteps - 1);
-                calcBtn.classList.toggle('hidden', currentStep !== totalSteps - 1);
+        function setUserGender(gender) {
+            currentUserGender = gender;
+            showStep(2);
+        }
+
+        function setTargetGender(gender) {
+            currentTargetGender = gender;
+            updateEmoji(); // Calculate initial emoji based on default age
+            showStep(3);
+        }
+
+        function goToNext() {
+            showStep(4);
+        }
+
+        // Age Logic & Reactions
+        function handleAgeChange() {
+            let minVal = parseInt(minAgeInput.value);
+            let maxVal = parseInt(maxAgeInput.value);
+
+            // Police check
+            if (minVal < 18 || maxVal < 18) {
+                policeModal.classList.remove('hidden');
+                emojiDisplay.textContent = "🤨"; // Confused face before modal
+                return;
+            }
+
+            updateEmoji();
+        }
+
+        function updateEmoji() {
+            let maxVal = parseInt(maxAgeInput.value);
+            let minVal = parseInt(minAgeInput.value);
+            let avgAge = (minVal + maxVal) / 2;
+
+            if (currentTargetGender === 'female') {
+                // If looking for a woman: Age increases -> happier
+                if (maxVal >= 40) emojiDisplay.textContent = "🤤";
+                else if (maxVal >= 30) emojiDisplay.textContent = "😏";
+                else if (maxVal >= 25) emojiDisplay.textContent = "🙂";
+                else emojiDisplay.textContent = "😒";
+            } else if (currentTargetGender === 'male') {
+                // If looking for a man: Age decreases -> happier
+                if (minVal <= 22) emojiDisplay.textContent = "🤤";
+                else if (minVal <= 26) emojiDisplay.textContent = "😏";
+                else if (minVal <= 32) emojiDisplay.textContent = "🙂";
+                else emojiDisplay.textContent = "😒";
             }
         }
 
-        document.querySelectorAll('.gender-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                targetGender = e.target.getAttribute('data-gender');
-                
-                if (targetGender === 'male') {
-                    document.getElementById('height_title').textContent = "Minimum Boy";
-                    document.getElementById('income_single_wrapper').classList.remove('hidden');
-                    document.getElementById('income_range_wrapper').classList.add('hidden');
-                    document.getElementById('married_label').textContent = "Evlileri Hariç Tut";
-                } else {
-                    document.getElementById('height_title').textContent = "Maksimum Boy";
-                    document.getElementById('income_single_wrapper').classList.add('hidden');
-                    document.getElementById('income_range_wrapper').classList.remove('hidden');
-                    document.getElementById('married_label').textContent = "Evlileri Dahil Et";
-                }
-                currentStep++; updateUI();
-            });
-        });
+        function closePoliceModal() {
+            policeModal.classList.add('hidden');
+            minAgeInput.value = 18;
+            if(parseInt(maxAgeInput.value) < 18) maxAgeInput.value = 20;
+            updateEmoji();
+        }
 
-        nextBtn.addEventListener('click', () => { if (currentStep < totalSteps - 1) currentStep++; updateUI(); });
-        prevBtn.addEventListener('click', () => { if (currentStep > 1) currentStep--; updateUI(); });
-        document.getElementById('restart_btn').addEventListener('click', () => { currentStep = 1; targetGender = null; updateUI(); });
-        
-        document.getElementById('height_slider').addEventListener('input', (e) => document.getElementById('height_display').textContent = e.target.value);
-        document.getElementById('income_slider').addEventListener('input', (e) => document.getElementById('income_display').textContent = parseInt(e.target.value).toLocaleString('tr-TR'));
+        minAgeInput.addEventListener('input', handleAgeChange);
+        maxAgeInput.addEventListener('input', handleAgeChange);
 
-        calcBtn.addEventListener('click', () => {
-            let basePop = targetGender === 'male' ? dbData.turkey_male_population : dbData.turkey_female_population;
-            let ageProb = 0.20; let heightProb = 1.0; let incomeProb = 1.0; let statusMult = 1.0;
-            const marriedChecked = document.getElementById('married_checkbox').checked;
-
-            if (targetGender === 'male') {
-                heightProb = 1 - normalCDF(parseInt(document.getElementById('height_slider').value), dbData.height_distribution.male_mean, dbData.height_distribution.male_std_dev);
-                incomeProb = 1 - incomeCDF(parseInt(document.getElementById('income_slider').value), dbData.income_distribution.median);
-                if (marriedChecked) statusMult *= 0.40;
-            } else {
-                heightProb = normalCDF(parseInt(document.getElementById('height_slider').value), dbData.height_distribution.female_mean, dbData.height_distribution.female_std_dev);
-                let pMax = incomeCDF(parseInt(document.getElementById('max_income_f').value), dbData.income_distribution.median);
-                let pMin = incomeCDF(parseInt(document.getElementById('min_income_f').value), dbData.income_distribution.median);
-                incomeProb = Math.max(0, pMax - pMin);
-                statusMult = marriedChecked ? 1.0 : 0.40;
-            }
-
-            if (document.getElementById('exclude_obese').checked) statusMult *= 0.70;
-
-            const jointProb = ageProb * heightProb * incomeProb * statusMult;
-            document.getElementById('final_probability').textContent = `${(jointProb * 100).toFixed(4)}%`;
-            document.getElementById('estimated_count').textContent = Math.floor(basePop * jointProb).toLocaleString('tr-TR');
-            currentStep++; updateUI();
-        });
-        
-        updateUI();
     </script>
 </body>
 </html>
