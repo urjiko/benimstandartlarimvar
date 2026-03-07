@@ -1,104 +1,183 @@
-// app.js
+// 1. State Variables
+let currentStep = 1;
+const totalSteps = 6;
+let targetGender = null;
 
-// 1. DOM Elements
-const heightSlider = document.getElementById('min_height');
+// 2. DOM Elements
+const steps = document.querySelectorAll('.step');
+const progressFill = document.getElementById('progress_fill');
+const prevBtn = document.getElementById('prev_btn');
+const nextBtn = document.getElementById('next_btn');
+const calcBtn = document.getElementById('calc_btn');
+const navControls = document.getElementById('nav_controls');
+
+// Step 1: Gender Buttons
+const genderBtns = document.querySelectorAll('.gender-btn');
+
+// Dynamic UI Elements
+const heightTitle = document.getElementById('height_title');
+const heightSlider = document.getElementById('height_slider');
 const heightDisplay = document.getElementById('height_display');
-const incomeSlider = document.getElementById('min_income');
+const incomeSingleWrapper = document.getElementById('income_single_wrapper');
+const incomeRangeWrapper = document.getElementById('income_range_wrapper');
+const incomeSlider = document.getElementById('income_slider');
 const incomeDisplay = document.getElementById('income_display');
-const calculateBtn = document.getElementById('calculate_btn');
-const resultsSection = document.getElementById('results');
-const probabilityDisplay = document.getElementById('final_probability');
-const countDisplay = document.getElementById('estimated_count');
+const marriedLabel = document.getElementById('married_label');
 
-// 2. Event Listeners for Sliders (UI Updates)
-heightSlider.addEventListener('input', (e) => {
-    heightDisplay.textContent = e.target.value;
-});
-
-incomeSlider.addEventListener('input', (e) => {
-    incomeDisplay.textContent = parseInt(e.target.value).toLocaleString('tr-TR');
-});
-
-// 3. Core Math Functions
-// Error function approximation for Normal Distribution
+// Math Functions (Normal Distribution & CDF)
 function erf(x) {
     const sign = (x >= 0) ? 1 : -1;
     x = Math.abs(x);
-    
-    // Constants for approximation
-    const a1 =  0.254829592;
-    const a2 = -0.284496736;
-    const a3 =  1.421413741;
-    const a4 = -1.453152027;
-    const a5 =  1.061405429;
-    const p  =  0.3275911;
-
+    const a1 =  0.254829592, a2 = -0.284496736, a3 =  1.421413741, a4 = -1.453152027, a5 =  1.061405429, p  =  0.3275911;
     const t = 1.0 / (1.0 + p * x);
     const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-    
     return sign * y;
 }
 
-// Cumulative Distribution Function (CDF)
 function normalCDF(x, mean, stdDev) {
     return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2))));
 }
 
-// 4. Main Calculation Logic
-calculateBtn.addEventListener('click', async () => {
+function incomeCDF(amount, median) {
+    if (amount <= 0) return 0;
+    return 1 - Math.pow(0.5, amount / median);
+}
+
+// 3. Navigation Logic
+function updateUI() {
+    // Show/Hide Steps
+    steps.forEach((step, index) => {
+        if (index + 1 === currentStep) {
+            step.classList.add('active');
+        } else {
+            step.classList.remove('active');
+        }
+    });
+
+    // Update Progress Bar
+    progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
+
+    // Button Visibility Logic
+    if (currentStep === 1) {
+        // Step 1: Hide nav, wait for gender click
+        prevBtn.classList.add('hidden');
+        nextBtn.classList.add('hidden');
+        calcBtn.classList.add('hidden');
+    } else if (currentStep === totalSteps) {
+        // Step 6 (Results): Hide nav entirely
+        navControls.classList.add('hidden');
+    } else {
+        // Steps 2-5: Show nav
+        navControls.classList.remove('hidden');
+        prevBtn.classList.remove('hidden');
+        
+        if (currentStep === totalSteps - 1) {
+            nextBtn.classList.add('hidden');
+            calcBtn.classList.remove('hidden');
+        } else {
+            nextBtn.classList.remove('hidden');
+            calcBtn.classList.add('hidden');
+        }
+    }
+}
+
+function adaptUIforGender() {
+    if (targetGender === 'male') {
+        heightTitle.textContent = "Minimum Boy";
+        incomeSingleWrapper.classList.remove('hidden');
+        incomeRangeWrapper.classList.add('hidden');
+        marriedLabel.textContent = "Evlileri Hariç Tut";
+    } else {
+        heightTitle.textContent = "Maksimum Boy";
+        incomeSingleWrapper.classList.add('hidden');
+        incomeRangeWrapper.classList.remove('hidden');
+        marriedLabel.textContent = "Evlileri Dahil Et";
+    }
+}
+
+// 4. Event Listeners
+genderBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        targetGender = e.target.getAttribute('data-gender');
+        adaptUIforGender();
+        currentStep++;
+        updateUI();
+    });
+});
+
+nextBtn.addEventListener('click', () => {
+    if (currentStep < totalSteps - 1) currentStep++;
+    updateUI();
+});
+
+prevBtn.addEventListener('click', () => {
+    if (currentStep > 1) currentStep--;
+    updateUI();
+});
+
+document.getElementById('restart_btn').addEventListener('click', () => {
+    currentStep = 1;
+    targetGender = null;
+    navControls.classList.remove('hidden');
+    updateUI();
+});
+
+// Real-time Slider Updates
+heightSlider.addEventListener('input', (e) => heightDisplay.textContent = e.target.value);
+incomeSlider.addEventListener('input', (e) => incomeDisplay.textContent = parseInt(e.target.value).toLocaleString('tr-TR'));
+
+// 5. Calculate Result
+calcBtn.addEventListener('click', async () => {
     try {
-        // Fetch demographic data
         const response = await fetch('data.json');
         const data = await response.json();
 
-        // Get user inputs
-        const targetGender = document.getElementById('target_gender').value;
-        const minAge = parseInt(document.getElementById('min_age').value);
-        const maxAge = parseInt(document.getElementById('max_age').value);
-        const minHeight = parseInt(heightSlider.value);
-        const minIncome = parseInt(incomeSlider.value);
-        const excludeMarried = document.getElementById('exclude_married').checked;
-        const excludeObese = document.getElementById('exclude_obese').checked;
-
-        // Base Population Calculation (Mocking with Male Data for now)
-        let basePopulation = data.turkey_male_population;
-
-        // 1. Age Probability (Simplified linear estimation based on mock data)
-        // In a real scenario, you sum the exact percentages from TUİK
-        let ageProbability = 0.20; // Placeholder for the 20-30 range
-
-        // 2. Height Probability (1 - CDF since we want height > minHeight)
-        const heightMean = data.height_distribution.mean;
-        const heightStdDev = data.height_distribution.std_dev;
-        let heightProbability = 1 - normalCDF(minHeight, heightMean, heightStdDev);
-
-        // 3. Income Probability (Simplified logarithmic or percentile estimation)
-        // Placeholder math: assuming exponential drop-off
+        let basePopulation = targetGender === 'male' ? data.turkey_male_population : data.turkey_female_population;
+        let ageProbability = 0.20; // Placeholder
+        let heightProbability = 1.0;
         let incomeProbability = 1.0;
-        if (minIncome > data.income_distribution.median) {
-            incomeProbability = Math.pow(0.5, (minIncome / data.income_distribution.median));
+        let statusMultiplier = 1.0;
+
+        const marriedChecked = document.getElementById('married_checkbox').checked;
+        const obeseChecked = document.getElementById('exclude_obese').checked;
+
+        if (targetGender === 'male') {
+            const minHeight = parseInt(heightSlider.value);
+            const minIncome = parseInt(incomeSlider.value);
+            
+            heightProbability = 1 - normalCDF(minHeight, data.height_distribution.male_mean, data.height_distribution.male_std_dev);
+            incomeProbability = 1 - incomeCDF(minIncome, data.income_distribution.median);
+            if (marriedChecked) statusMultiplier *= 0.40; 
+        } else {
+            const maxHeight = parseInt(heightSlider.value);
+            const minIncF = parseInt(document.getElementById('min_income_f').value);
+            const maxIncF = parseInt(document.getElementById('max_income_f').value);
+            
+            heightProbability = normalCDF(maxHeight, data.height_distribution.female_mean, data.height_distribution.female_std_dev);
+            
+            let pMax = incomeCDF(maxIncF, data.income_distribution.median);
+            let pMin = incomeCDF(minIncF, data.income_distribution.median);
+            incomeProbability = Math.max(0, pMax - pMin);
+            
+            statusMultiplier = marriedChecked ? 1.0 : 0.40;
         }
 
-        // 4. Exclusions (Static multipliers for MVP)
-        let statusMultiplier = 1.0;
-        if (excludeMarried) statusMultiplier *= 0.40; // Assuming 60% are married
-        if (excludeObese) statusMultiplier *= 0.70;   // Assuming 30% are obese
+        if (obeseChecked) statusMultiplier *= 0.70; 
 
-        // 5. Calculate Joint Probability (Naive Bayes approach)
         const jointProbability = ageProbability * heightProbability * incomeProbability * statusMultiplier;
-        
-        // Final Numbers
         const finalPercentage = (jointProbability * 100).toFixed(4);
         const estimatedPool = Math.floor(basePopulation * jointProbability);
 
-        // Update UI
-        probabilityDisplay.textContent = `${finalPercentage}%`;
-        countDisplay.textContent = estimatedPool.toLocaleString('tr-TR');
+        document.getElementById('final_probability').textContent = `${finalPercentage}%`;
+        document.getElementById('estimated_count').textContent = estimatedPool.toLocaleString('tr-TR');
         
-        resultsSection.classList.remove('hidden');
+        currentStep++; // Move to results step
+        updateUI();
 
     } catch (error) {
         console.error("Data loading error:", error);
-        alert("Failed to load calculation data. Are you running this on a server?");
     }
 });
+
+// Initialize UI
+updateUI();
