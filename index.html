@@ -3,634 +3,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Standart Hesaplayıcı</title>
+    <title>Standart Hesaplayıcı | Premium</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
         
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; user-select: none; }
+        :root {
+            --bg-color: #000000;
+            --panel-bg: rgba(28, 28, 30, 0.7);
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --accent: #0a84ff; /* Apple Blue */
+            --danger: #ff453a;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            background-color: #050505; 
-            color: #fff; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
             display: flex; 
             justify-content: center; 
             align-items: center;
             min-height: 100vh; 
-            background-image: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #050505 80%);
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         .app-container { 
             width: 100%; 
-            max-width: 500px; 
+            max-width: 480px; 
             height: 100vh;
             display: flex; 
             flex-direction: column; 
             position: relative; 
+            background: radial-gradient(circle at 50% 0%, #1c1c1e 0%, #000000 70%);
         }
 
-        .preview-area {
-            height: 35vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            padding-bottom: 20px;
-            position: relative;
-            z-index: 10;
+        /* --- Premium Header --- */
+        .header {
+            padding: 30px 20px 10px;
+            text-align: center;
         }
+        .header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+        .header p { font-size: 14px; color: var(--text-muted); font-weight: 400; margin-top: 5px; }
 
-        .meme-image {
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
+        /* --- Meme Notification Overlay --- */
+        .meme-toast {
+            position: absolute;
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            background: rgba(20, 20, 20, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.2);
-            border: 2px solid rgba(0, 255, 204, 0.3);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            opacity: 0;
-            transform: translateY(20px) scale(0.9);
-        }
-
-        .meme-image.visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        .control-panel {
-            flex: 1;
-            background: rgba(20, 20, 25, 0.6);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-top-left-radius: 30px;
-            border-top-right-radius: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 30px 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            z-index: 999;
+            transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .meme-toast.show { top: 40px; }
+        .meme-toast img { width: 100%; height: 200px; object-fit: contain; border-radius: 12px; }
+        .meme-toast span { margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--text-main); text-align: center; }
+
+        /* --- Content Area --- */
+        .content-area {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             position: relative;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
         }
 
-        h2 { font-size: 26px; font-weight: 900; margin-bottom: 5px; text-align: center; letter-spacing: -0.5px; text-transform: uppercase; color: #fff;}
-        .subtitle { font-size: 13px; color: #888; text-align: center; margin-bottom: 25px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;}
-
-        .step { display: none; animation: slideUp 0.4s ease forwards; }
-        .step.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        .choice-grid { display: flex; flex-direction: column; gap: 12px; }
-        .choice-btn { 
-            padding: 18px; 
-            font-size: 16px; 
-            font-weight: 900; 
-            background: rgba(255, 255, 255, 0.03); 
-            color: #fff; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 12px; 
-            cursor: pointer; 
-            transition: all 0.2s; 
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .step { 
+            display: none; 
+            opacity: 0; 
+            transform: translateY(20px); 
+            transition: all 0.4s ease; 
         }
-        .choice-btn:hover, .choice-btn:active { 
-            background: rgba(0, 255, 204, 0.1); 
-            border-color: #00ffcc; 
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); 
-            transform: scale(0.98);
+        .step.active { 
+            display: block; 
+            opacity: 1; 
+            transform: translateY(0); 
         }
 
-        /* Chaos Gender List */
-        .chaos-container {
-            height: 250px;
-            overflow-y: auto;
-            border: 1px solid rgba(255,0,0,0.3);
-            border-radius: 12px;
-            padding: 10px;
-            background: rgba(0,0,0,0.5);
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-        }
-        .chaos-container::-webkit-scrollbar { width: 5px; }
-        .chaos-container::-webkit-scrollbar-thumb { background: rgba(255,0,0,0.5); border-radius: 10px; }
-        .chaos-btn {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: #aaa;
-            padding: 10px 5px;
-            font-size: 11px;
-            border-radius: 6px;
+        h2 { font-size: 22px; font-weight: 600; margin-bottom: 25px; text-align: center; }
+
+        /* --- Premium Buttons --- */
+        .btn-group { display: flex; flex-direction: column; gap: 12px; }
+        .btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 18px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            text-align: center;
-            transition: 0.1s;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
         }
-        .chaos-btn:hover { background: rgba(255,0,0,0.2); color: #fff; border-color: #ff3333; }
+        .btn:active { transform: scale(0.97); background: rgba(255,255,255,0.1); }
+        .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .btn.primary:active { opacity: 0.8; }
 
-        .slider-wrapper { position: relative; width: 100%; height: 60px; margin-top: 10px; }
-        .slider-track { position: absolute; width: 100%; height: 6px; background: #333; top: 50%; transform: translateY(-50%); border-radius: 3px; }
-        .slider-fill { position: absolute; height: 100%; background: #00ffcc; border-radius: 3px; z-index: 1; }
+        /* --- Range Sliders (Apple Style) --- */
+        .slider-container { margin-bottom: 30px; }
+        .val-display { font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 15px; letter-spacing: -1px; }
         
-        .dual-range { position: absolute; width: 100%; top: 50%; transform: translateY(-50%); -webkit-appearance: none; background: transparent; pointer-events: none; z-index: 2; }
-        .dual-range::-webkit-slider-thumb { pointer-events: all; -webkit-appearance: none; width: 24px; height: 24px; background: #fff; border: 3px solid #00ffcc; border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px rgba(0,255,204,0.5); }
-        .range-values { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 20px; font-weight: 900; color: #00ffcc; }
-        .single-range { pointer-events: all !important; }
+        .slider-wrapper { position: relative; width: 100%; height: 40px; }
+        .slider-track { position: absolute; top: 50%; transform: translateY(-50%); width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .slider-fill { position: absolute; top: 50%; transform: translateY(-50%); height: 8px; background: var(--accent); border-radius: 4px; z-index: 1; pointer-events: none; }
+        
+        input[type="range"] {
+            position: absolute; width: 100%; top: 50%; transform: translateY(-50%);
+            -webkit-appearance: none; background: transparent; pointer-events: none; z-index: 2; margin: 0;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            pointer-events: all; -webkit-appearance: none; width: 28px; height: 28px;
+            background: #fff; border-radius: 50%; cursor: grab;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid rgba(0,0,0,0.1);
+        }
+        input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.1); }
 
-        .checkbox-container { display: flex; align-items: center; justify-content: space-between; padding: 18px; background: rgba(0,0,0,0.4); border-radius: 12px; margin-bottom: 12px; font-weight: 700; font-size: 14px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; text-transform: uppercase;}
-        .checkbox-container input { width: 22px; height: 22px; accent-color: #00ffcc; }
+        /* --- Toggles (Checkboxes) --- */
+        .toggle-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--panel-bg); padding: 16px 20px; border-radius: 16px; margin-bottom: 12px;
+            border: 1px solid var(--border); font-size: 15px; font-weight: 600; cursor: pointer;
+        }
+        .toggle-switch {
+            width: 50px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 15px;
+            position: relative; transition: 0.3s;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; width: 26px; height: 26px;
+            background: #fff; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s;
+        }
+        input[type="checkbox"] { display: none; }
+        input[type="checkbox"]:checked + .toggle-switch { background: var(--accent); }
+        input[type="checkbox"]:checked + .toggle-switch::after { transform: translateX(20px); }
 
-        .nav-controls { display: flex; gap: 10px; margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05); }
-        .nav-btn { flex: 1; padding: 16px; font-size: 14px; font-weight: 900; border: none; border-radius: 12px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;}
-        .btn-back { background: rgba(255,255,255,0.05); color: #888; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-next { background: #00ffcc; color: #000; box-shadow: 0 0 15px rgba(0,255,204,0.4); }
-        .btn-back:hover { background: rgba(255,255,255,0.1); color: #fff; }
-        .btn-next:hover { background: #00cca3; }
-
-        .police-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(20,0,0,0.95); display: flex; justify-content: center; align-items: center; z-index: 100; padding: 20px; flex-direction: column; backdrop-filter: blur(5px);}
-        .police-content { background: #050505; padding: 40px 20px; border-radius: 20px; text-align: center; border: 1px solid #ff3333; max-width: 400px; box-shadow: 0 0 50px rgba(255,0,0,0.2);}
-        .police-content h3 { color: #ff3333; font-size: 32px; margin-bottom: 15px; font-weight: 900; text-transform: uppercase;}
-        .police-content p { font-size: 16px; color: #ccc; margin-bottom: 30px; line-height: 1.5; font-weight: 600; }
-        .btn-joke { background: #fff; color: #000; padding: 15px; font-weight: 900; border-radius: 12px; border: none; cursor: pointer; font-size: 14px; width: 100%; margin-bottom: 10px; text-transform: uppercase;}
-        .btn-illegal { background: rgba(255,255,255,0.05); color: #555; padding: 15px; font-weight: 900; border-radius: 12px; border: none; cursor: not-allowed; font-size: 14px; width: 100%; text-transform: uppercase;}
-
+        /* --- Navigation Bar --- */
+        .nav-bar {
+            padding: 20px; display: flex; gap: 15px;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+        }
+        .nav-bar .btn { flex: 1; padding: 15px; font-size: 15px; }
         .hidden { display: none !important; }
-        .emoji-display { font-size: 60px; text-align: center; margin-top: 10px; transition: all 0.3s ease; }
-        
-        .result-box { background: rgba(0,0,0,0.5); padding: 25px; border-radius: 16px; text-align: center; margin-bottom: 15px; border: 1px solid rgba(0,255,204,0.2); }
-        .result-label { font-size: 12px; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
-        .result-value { font-size: 40px; font-weight: 900; color: #00ffcc; margin-top: 5px; text-shadow: 0 0 20px rgba(0,255,204,0.3);}
-        .delusional-level { font-size: 18px; font-weight: 700; text-align: center; margin-top: 20px; color: #ff3333; line-height: 1.4;}
 
+        /* --- Loading Screen --- */
+        .loading-screen { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 30px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .loading-text { font-size: 16px; font-weight: 600; color: var(--text-muted); min-height: 24px; transition: opacity 0.3s; }
+
+        /* --- Result Screen --- */
+        .result-card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 20px; }
+        .res-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 5px; }
+        .res-val { font-size: 48px; font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; color: var(--accent); }
+        .res-msg { font-size: 16px; font-weight: 600; color: var(--danger); line-height: 1.5; }
+
+        /* Chaos Menu */
+        .chaos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 5px; }
+        .chaos-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text-muted); padding: 12px; border-radius: 10px; font-size: 12px; text-align: center; cursor: pointer; }
     </style>
 </head>
 <body>
+
+    <div class="meme-toast" id="meme_toast">
+        <img id="meme_img" src="" alt="Meme">
+        <span id="meme_text"></span>
+    </div>
+
     <div class="app-container">
         
-        <div class="preview-area">
-            <img id="main_meme" class="meme-image" src="" alt="Reaction">
+        <div class="header">
+            <h1>Standart Hesaplayıcı</h1>
+            <p id="header_desc">Gerçeklerle yüzleşmeye hazır mısın?</p>
         </div>
 
-        <div class="control-panel">
+        <div class="content-area">
             
             <div id="step_1" class="step active">
-                <h2>Karakter Seçimi</h2>
-                <p class="subtitle">Sen kimsin?</p>
-                <div class="choice-grid">
-                    <button class="choice-btn" onclick="setUserGender('female')">Kadın</button>
-                    <button class="choice-btn" onclick="setUserGender('male')">Erkek</button>
-                    <button class="choice-btn" style="border-color: #333; color: #888;" onclick="openChaosMenu()">Diğer</button>
+                <h2>Sen kimsin?</h2>
+                <div class="btn-group">
+                    <button class="btn" onclick="setUserGender('female')">Kadın</button>
+                    <button class="btn" onclick="setUserGender('male')">Erkek</button>
+                    <button class="btn" onclick="openChaosMenu()">Diğer</button>
                 </div>
             </div>
 
             <div id="step_1_5" class="step">
-                <h2 style="font-size: 20px; color: #ff3333;">Kimliğini Doğrula</h2>
-                <p class="subtitle" style="font-size: 10px;">Lütfen listeden tam olarak kendini bul.</p>
-                <div class="chaos-container" id="chaos_grid"></div>
+                <h2>Kimliğini Doğrula</h2>
+                <div class="chaos-grid" id="chaos_list"></div>
             </div>
 
             <div id="step_2" class="step">
-                <h2>Hedef Belirleme</h2>
-                <p class="subtitle">Kimi arıyorsun?</p>
-                <div class="choice-grid">
-                    <button class="choice-btn" onclick="setTargetGender('female')">Kadın Arıyorum</button>
-                    <button class="choice-btn" onclick="setTargetGender('male')">Erkek Arıyorum</button>
+                <h2>Kimi arıyorsun?</h2>
+                <div class="btn-group">
+                    <button class="btn" onclick="setTargetGender('female')">Kadın</button>
+                    <button class="btn" onclick="setTargetGender('male')">Erkek</button>
                 </div>
             </div>
 
             <div id="step_3" class="step">
                 <h2>Yaş Aralığı</h2>
-                <p class="subtitle">Hangi level aralığı?</p>
-                <div class="range-values">
-                    <span id="age_display_min">20</span> - <span id="age_display_max">30</span>
-                </div>
-                <div class="slider-wrapper">
-                    <div class="slider-track"></div>
-                    <div class="slider-fill" id="age_fill"></div>
-                    <input type="range" class="dual-range" id="age_min" min="18" max="60" value="20" oninput="updateAgeSlider()">
-                    <input type="range" class="dual-range" id="age_max" min="18" max="60" value="30" oninput="updateAgeSlider()">
+                <div class="slider-container">
+                    <div class="val-display"><span id="age_val_min">20</span> - <span id="age_val_max">30</span></div>
+                    <div class="slider-wrapper">
+                        <div class="slider-track"></div>
+                        <div class="slider-fill" id="age_fill"></div>
+                        <input type="range" id="age_min" min="15" max="60" value="20" oninput="updateAge()">
+                        <input type="range" id="age_max" min="15" max="60" value="30" oninput="updateAge()">
+                    </div>
                 </div>
             </div>
 
             <div id="step_4" class="step">
-                <h2>Boy Kriteri</h2>
-                <p class="subtitle" id="height_subtitle">Fiziksel özellikler</p>
+                <h2 id="h_title">Boy Kriteri</h2>
                 
-                <div id="height_single_ui" class="hidden">
-                    <div class="range-values" style="justify-content: center;">
-                        Min <span id="h_min_single_display" style="margin-left: 10px;">165</span> cm
-                    </div>
+                <div id="h_single_ui" class="slider-container hidden">
+                    <div class="val-display"><span id="h_s_val">165</span> cm</div>
                     <div class="slider-wrapper">
                         <div class="slider-track"></div>
-                        <div class="slider-fill" id="h_single_fill" style="left:0; width: 50%;"></div>
-                        <input type="range" class="dual-range single-range" id="h_min_single" min="140" max="210" value="165" oninput="updateHeightSingle()">
+                        <div class="slider-fill" id="h_s_fill" style="left:0;"></div>
+                        <input type="range" id="h_s_input" min="140" max="210" value="165" oninput="updateHeight()">
                     </div>
                 </div>
 
-                <div id="height_dual_ui" class="hidden">
-                    <div class="range-values">
-                        <span id="h_display_min_dual">160 cm</span> - <span id="h_display_max_dual">180 cm</span>
-                    </div>
+                <div id="h_dual_ui" class="slider-container hidden">
+                    <div class="val-display"><span id="h_d_val_min">160</span> - <span id="h_d_val_max">180</span> cm</div>
                     <div class="slider-wrapper">
                         <div class="slider-track"></div>
-                        <div class="slider-fill" id="h_dual_fill"></div>
-                        <input type="range" class="dual-range" id="h_min_dual" min="140" max="210" value="160" oninput="updateHeightDual()">
-                        <input type="range" class="dual-range" id="h_max_dual" min="140" max="210" value="180" oninput="updateHeightDual()">
+                        <div class="slider-fill" id="h_d_fill"></div>
+                        <input type="range" id="h_d_min" min="140" max="210" value="160" oninput="updateHeight()">
+                        <input type="range" id="h_d_max" min="140" max="210" value="180" oninput="updateHeight()">
                     </div>
                 </div>
-                <div class="emoji-display" id="height_emoji"></div>
             </div>
 
             <div id="step_5" class="step">
-                <h2>Aylık Gelir</h2>
-                <p class="subtitle" id="income_subtitle">Ekonomik güç</p>
+                <h2 id="inc_title">Aylık Gelir</h2>
                 
-                <div id="income_single_ui" class="hidden">
-                    <div class="range-values" style="justify-content: center;">
-                        Min <span id="inc_min_single_display" style="margin-left: 10px;">30.000</span> TL
-                    </div>
+                <div id="inc_single_ui" class="slider-container hidden">
+                    <div class="val-display"><span id="inc_s_val">30k</span> TL</div>
                     <div class="slider-wrapper">
                         <div class="slider-track"></div>
-                        <div class="slider-fill" id="inc_single_fill" style="left:0; width: 30%;"></div>
-                        <input type="range" class="dual-range single-range" id="inc_min_single" min="17000" max="300000" step="1000" value="30000" oninput="updateIncomeSingle()">
+                        <div class="slider-fill" id="inc_s_fill" style="left:0;"></div>
+                        <input type="range" id="inc_s_input" min="17000" max="300000" step="1000" value="30000" oninput="updateIncome()">
                     </div>
                 </div>
 
-                <div id="income_dual_ui" class="hidden">
-                    <div class="range-values" style="font-size: 16px;">
-                        <span id="inc_display_min_dual">30k TL</span> - <span id="inc_display_max_dual">100k TL</span>
-                    </div>
+                <div id="inc_dual_ui" class="slider-container hidden">
+                    <div class="val-display"><span id="inc_d_val_min">30k</span> - <span id="inc_d_val_max">100k</span> TL</div>
                     <div class="slider-wrapper">
                         <div class="slider-track"></div>
-                        <div class="slider-fill" id="inc_dual_fill"></div>
-                        <input type="range" class="dual-range" id="inc_min_dual" min="17000" max="300000" step="5000" value="30000" oninput="updateIncomeDual()">
-                        <input type="range" class="dual-range" id="inc_max_dual" min="17000" max="300000" step="5000" value="100000" oninput="updateIncomeDual()">
+                        <div class="slider-fill" id="inc_d_fill"></div>
+                        <input type="range" id="inc_d_min" min="17000" max="300000" step="5000" value="30000" oninput="updateIncome()">
+                        <input type="range" id="inc_d_max" min="17000" max="300000" step="5000" value="100000" oninput="updateIncome()">
                     </div>
                 </div>
-                <div class="emoji-display" id="income_emoji"></div>
             </div>
 
             <div id="step_6" class="step">
                 <h2>Son Filtreler</h2>
-                <p class="subtitle">Demografi ve Statü</p>
-                
-                <label class="checkbox-container">
-                    Evliler de dahil mi?
-                    <input type="checkbox" id="include_married" onchange="updateMemeForStep()">
+                <label class="toggle-row">Evliler dahil mi?
+                    <input type="checkbox" id="chk_married">
+                    <div class="toggle-switch"></div>
                 </label>
-                <label class="checkbox-container">
-                    Obezleri hariç tut
-                    <input type="checkbox" id="exclude_obese">
+                <label class="toggle-row">Obezleri hariç tut
+                    <input type="checkbox" id="chk_obese">
+                    <div class="toggle-switch"></div>
                 </label>
-                <label class="checkbox-container">
-                    Suriyelileri hariç tut
-                    <input type="checkbox" id="exclude_syrian">
+                <label class="toggle-row">Suriyelileri hariç tut
+                    <input type="checkbox" id="chk_syrian">
+                    <div class="toggle-switch"></div>
                 </label>
-                <label class="checkbox-container">
-                    Kürtleri hariç tut
-                    <input type="checkbox" id="exclude_kurdish">
+                <label class="toggle-row">Kürtleri hariç tut
+                    <input type="checkbox" id="chk_kurdish">
+                    <div class="toggle-switch"></div>
                 </label>
             </div>
 
-            <div id="step_7" class="step">
-                <h2>Sistem Analizi</h2>
-                <p class="subtitle">Acı gerçeklerle yüzleşme vakti.</p>
-                <div class="result-box">
-                    <div class="result-label">Türkiye'deki Oranı</div>
-                    <div class="result-value" id="final_probability">0%</div>
-                </div>
-                <div class="result-box">
-                    <div class="result-label">Tahmini Kişi Sayısı</div>
-                    <div class="result-value" style="font-size: 28px;"><span id="estimated_count">0</span></div>
-                </div>
-                <div class="delusional-level" id="delusion_msg"></div>
+            <div id="step_loading" class="step loading-screen">
+                <div class="spinner"></div>
+                <div class="loading-text" id="loading_text">Sistem başlatılıyor...</div>
             </div>
 
-            <div class="nav-controls hidden" id="nav_area">
-                <button class="nav-btn btn-back" onclick="goBack()">Geri</button>
-                <button class="nav-btn btn-next" onclick="goToNext()" id="next_btn">Devam Et</button>
+            <div id="step_result" class="step">
+                <div class="result-card">
+                    <div class="res-label">Türkiye'deki Oranı</div>
+                    <div class="res-val" id="res_pct">0%</div>
+                    <div class="res-label">Tahmini Kişi Sayısı</div>
+                    <div class="res-val" style="font-size: 32px;" id="res_pool">0</div>
+                    <div class="res-msg" id="res_msg"></div>
+                </div>
+                <button class="btn" style="width: 100%; margin-top: 10px;" onclick="location.reload()">Sistemi Sıfırla</button>
             </div>
 
         </div>
 
-        <div id="police_modal" class="police-modal hidden">
-            <div class="police-content">
-                <h3>🚔 SİREN SESLERİ!</h3>
-                <p>18 yaşının altını da araştırabilirim ama önce emniyete haber vermem gerekiyor. Emin misin?</p>
-                <button class="btn-joke" onclick="closePoliceModal()">Şaka şaka (Geri Dön)</button>
-                <button class="btn-illegal" disabled>Ara sıkıntı yok</button>
-            </div>
+        <div class="nav-bar hidden" id="nav_bar">
+            <button class="btn" onclick="goBack()">Geri</button>
+            <button class="btn primary" id="btn_next" onclick="goNext()">Devam</button>
         </div>
 
     </div>
 
     <script>
-        const MEME_AYARLARI = {
-            default: "https://i.imgflip.com/4t0m5.jpg", 
-            police: "https://i.imgflip.com/1ur9b0.jpg", 
-            age: {
-                femaleTarget: [
-                    { yasSiniri: 24, imgUrl: "https://i.imgflip.com/1g8my4.jpg" },
-                    { yasSiniri: 29, imgUrl: "https://i.imgflip.com/261o3j.jpg" },
-                    { yasSiniri: 80, imgUrl: "https://i.imgflip.com/2wikm3.jpg" }
-                ],
-                maleTarget: [
-                    { yasSiniri: 22, imgUrl: "https://i.imgflip.com/2wikm3.jpg" },
-                    { yasSiniri: 26, imgUrl: "https://i.imgflip.com/261o3j.jpg" },
-                    { yasSiniri: 80, imgUrl: "https://i.imgflip.com/1g8my4.jpg" }
-                ]
-            },
-            married: "https://i.imgflip.com/392d42.jpg",
-            delusional: "https://i.imgflip.com/1h7in3.jpg",
-            error: "https://i.imgflip.com/1q1x59.jpg" 
-        };
-
+        // --- Core Data ---
         const appData = {
             turkey_male_population: 42500000,
             turkey_female_population: 42800000,
-            height_distribution: { male_mean: 174, male_std_dev: 7, female_mean: 162, female_std_dev: 6 },
-            income_distribution: { median: 25000 },
-            demographics: { syrian_ratio: 0.027, kurdish_ratio: 0.180, black_ratio: 0.018 }
+            height: { male_mean: 174, male_std: 7, female_mean: 162, female_std: 6 },
+            income_median: 25000,
+            demographics: { syrian: 0.027, kurdish: 0.180, black: 0.018 }
         };
 
-        const chaosGenders = [
-            "Agender", "Androgyne", "Bigender", "Demiboy", "Demigirl", "Genderfluid", "Genderqueer", "Neutrois", "Non-binary", "Pangender", "Two-Spirit", "Xenogender", "Abimegender", "Adamasgender", "Aerogender", "Aesthetigender", "Affectugender", "Agenderfluid", "Agenderflux", "Alexigender", "Aliusgender", "Amaregender", "Ambigender", "Ambonec", "Amicagender", "Anesigender", "Angenital", "Anogender", "Anongender", "Antegender", "Anxiegender", "Apagender", "Apconsugender", "Astergender", "Astralgender", "Autigender", "Autogender", "Axigender", "Biogender", "Blurgender", "Boyflux", "Burstgender", "Caelgender", "Cassgender", "Cassflux", "Cavusgender", "Cendgender", "Ceterogender", "Ceterofluid", "Cloudgender", "Collgender", "ColorGender", "Commogender", "Condigender", "Deliciagender", "Demifluid", "Demiflux", "Domgender", "Duragender", "Egogender", "Epicene", "Esspigender", "Exgender", "Existigender", "Femfluid", "Femgender", "Fluidflux", "Gemigender", "Genderblank", "Genderflow", "Genderfuzz", "Gender neutral", "Genderpunk", "Genderwitched", "Girlflux", "Healgender", "Mirrorgender", "Omnigender", "Polygender", "Systemgender", "Trigender"
-        ];
+        const MEMES = {
+            police: { img: "https://i.imgflip.com/2xtbnt.jpg", text: "18 yaş altı mı? FBI OPEN UP!" },
+            sugar: { img: "https://i.imgflip.com/4bky.jpg", text: "Bu maaşa CEO arıyorsun sanırım." },
+            tall: { img: "https://i.imgflip.com/5q62a8.jpg", text: "NBA draftlarına mı hazırlanıyoruz?" },
+            clown: { img: "https://i.imgflip.com/3i1h4z.jpg", text: "" }
+        };
+
+        const chaosGenders = ["Agender", "Bigender", "Demiboy", "Genderfluid", "Non-binary", "Pangender", "Two-Spirit", "Xenogender", "Astralgender", "Cassgender", "Epicene", "Neutrois"];
 
         let currentStep = 1;
-        let currentUserGender = null;
-        let currentTargetGender = null;
+        let uGender = null, tGender = null;
+        let memeTimeout = null;
 
-        const memeImg = document.getElementById('main_meme');
-        const heightEmoji = document.getElementById('height_emoji');
-        const incomeEmoji = document.getElementById('income_emoji');
-
-        function setMeme(url) {
-            memeImg.classList.remove('visible');
-            setTimeout(() => {
-                memeImg.src = url || MEME_AYARLARI.default;
-                memeImg.classList.add('visible');
-            }, 200);
+        // --- Meme Trigger Logic ---
+        function triggerMeme(type) {
+            const toast = document.getElementById('meme_toast');
+            document.getElementById('meme_img').src = MEMES[type].img;
+            document.getElementById('meme_text').innerText = MEMES[type].text;
+            
+            toast.classList.add('show');
+            clearTimeout(memeTimeout);
+            memeTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3500); // 3.5s sonra kaybolur
         }
 
-        setMeme(MEME_AYARLARI.default);
-
+        // --- Navigation ---
         function showStep(step) {
-            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.step').forEach(e => e.classList.remove('active'));
             document.getElementById('step_' + step).classList.add('active');
             
-            const navArea = document.getElementById('nav_area');
-            const nextBtn = document.getElementById('next_btn');
-
-            if(step > 1 && step < 7 && step !== "1_5") navArea.classList.remove('hidden');
-            else navArea.classList.add('hidden'); 
+            const nav = document.getElementById('nav_bar');
+            const btnNext = document.getElementById('btn_next');
             
-            if(step === 6) nextBtn.textContent = "Sistemi Çalıştır";
-            else nextBtn.textContent = "Devam Et";
+            if (step > 1 && step < 7 && step !== '1_5') {
+                nav.classList.remove('hidden');
+            } else {
+                nav.classList.add('hidden');
+            }
 
-            updateMemeForStep();
+            if (step === 6) {
+                btnNext.innerText = "Sistemi Çalıştır";
+                btnNext.style.backgroundColor = "#ff453a"; // Red for action
+                btnNext.style.borderColor = "#ff453a";
+            } else {
+                btnNext.innerText = "Devam";
+                btnNext.style.backgroundColor = "var(--accent)";
+                btnNext.style.borderColor = "var(--accent)";
+            }
+            
+            // Gizle header description in loading and result
+            document.getElementById('header_desc').style.opacity = (step === 'loading' || step === 'result') ? '0' : '1';
         }
 
         function goBack() {
-            if (currentStep > 1) {
-                if (currentStep === 2) currentStep = 1; 
-                else currentStep--;
-                showStep(currentStep);
-            }
+            if (currentStep === 2) currentStep = 1;
+            else if (currentStep > 1) currentStep--;
+            showStep(currentStep);
         }
 
-        function goToNext() {
-            if(currentStep === 6) {
-                calculateFinalProbability();
-                currentStep = 7;
-                showStep(7);
+        function goNext() {
+            if (currentStep === 6) {
+                startLoadingSequence();
                 return;
             }
             currentStep++; showStep(currentStep);
         }
 
-        window.setUserGender = function(gender) { currentUserGender = gender; currentStep = 2; showStep(2); }
-        
-        window.openChaosMenu = function() {
-            currentStep = "1_5";
-            showStep("1_5");
-            setMeme(MEME_AYARLARI.error);
-            
-            const grid = document.getElementById('chaos_grid');
+        window.setUserGender = (g) => { uGender = g; currentStep = 2; showStep(2); };
+        window.openChaosMenu = () => {
+            currentStep = '1_5'; showStep('1_5');
+            const grid = document.getElementById('chaos_list');
             grid.innerHTML = '';
-            
-            let shuffled = chaosGenders.sort(() => 0.5 - Math.random());
-            shuffled.forEach(gender => {
-                let btn = document.createElement('div');
-                btn.className = 'chaos-btn';
-                btn.textContent = gender;
-                btn.onclick = () => {
-                    alert("UYARI: TÜİK bu veriyi tutmadığı için istatistiksel hesaplama yapılamaz. Sistem çökmesini engellemek için zorla Binary (Erkek/Kadın) havuzuna atanıyorsunuz.");
-                    setUserGender(Math.random() > 0.5 ? 'male' : 'female'); 
-                };
-                grid.appendChild(btn);
+            chaosGenders.sort(() => 0.5 - Math.random()).forEach(g => {
+                let b = document.createElement('div'); b.className = 'chaos-btn'; b.innerText = g;
+                b.onclick = () => { alert("Veritabanında bulunamadı. Zorla Binary havuzuna atanıyorsunuz."); setUserGender('female'); };
+                grid.appendChild(b);
             });
-        }
+        };
 
-        window.setTargetGender = function(gender) {
-            currentTargetGender = gender;
+        window.setTargetGender = (g) => {
+            tGender = g;
             
-            // DİKKAT: Arayüz (UI) Kullanıcının kendi cinsiyetine (currentUserGender) göre değişir
-            if(currentUserGender === 'female') {
-                // Kadınsa Sadece Minimum Sliderlar Görünsün
-                document.getElementById('height_single_ui').classList.remove('hidden');
-                document.getElementById('height_dual_ui').classList.add('hidden');
-                document.getElementById('income_single_ui').classList.remove('hidden');
-                document.getElementById('income_dual_ui').classList.add('hidden');
-                document.getElementById('height_subtitle').textContent = "Minimum kaç cm olmalı?";
-                document.getElementById('income_subtitle').textContent = "Minimum ne kadar kazanmalı?";
+            // Logic: User Female -> Min Sliders. User Male -> Range Sliders.
+            if (uGender === 'female') {
+                document.getElementById('h_single_ui').classList.remove('hidden');
+                document.getElementById('h_dual_ui').classList.add('hidden');
+                document.getElementById('inc_single_ui').classList.remove('hidden');
+                document.getElementById('inc_dual_ui').classList.add('hidden');
+                document.getElementById('h_title').innerText = "Minimum Boy";
+                document.getElementById('inc_title').innerText = "Minimum Gelir";
             } else {
-                // Erkekse Aralık (Dual) Sliderlar Görünsün
-                document.getElementById('height_single_ui').classList.add('hidden');
-                document.getElementById('height_dual_ui').classList.remove('hidden');
-                document.getElementById('income_single_ui').classList.add('hidden');
-                document.getElementById('income_dual_ui').classList.remove('hidden');
-                document.getElementById('height_subtitle').textContent = "Hangi aralıkta olmalı?";
-                document.getElementById('income_subtitle').textContent = "Hangi gelir bandında olmalı?";
+                document.getElementById('h_single_ui').classList.add('hidden');
+                document.getElementById('h_dual_ui').classList.remove('hidden');
+                document.getElementById('inc_single_ui').classList.add('hidden');
+                document.getElementById('inc_dual_ui').classList.remove('hidden');
+                document.getElementById('h_title').innerText = "Boy Aralığı";
+                document.getElementById('inc_title').innerText = "Gelir Aralığı";
             }
             currentStep = 3; showStep(3);
+        };
+
+        // --- Slider Logics ---
+        function setFill(elId, minIn, maxIn) {
+            let minP = ((minIn.value - minIn.min) / (minIn.max - minIn.min)) * 100;
+            let maxP = ((maxIn.value - minIn.min) / (minIn.max - minIn.min)) * 100;
+            document.getElementById(elId).style.left = minP + '%';
+            document.getElementById(elId).style.width = (maxP - minP) + '%';
         }
 
-        // --- Sliders ---
-        function updateAgeSlider() {
-            let minS = document.getElementById('age_min');
-            let maxS = document.getElementById('age_max');
-            let minVal = parseInt(minS.value);
-            let maxVal = parseInt(maxS.value);
+        window.updateAge = () => {
+            let min = document.getElementById('age_min');
+            let max = document.getElementById('age_max');
+            let valMin = parseInt(min.value);
+            let valMax = parseInt(max.value);
 
-            if (minVal > maxVal) { let tmp = minVal; minVal = maxVal; maxVal = tmp; }
-            
-            document.getElementById('age_display_min').textContent = minVal;
-            document.getElementById('age_display_max').textContent = maxVal;
-            
-            let minPercent = ((minVal - minS.min) / (minS.max - minS.min)) * 100;
-            let maxPercent = ((maxVal - minS.min) / (minS.max - minS.min)) * 100;
-            document.getElementById('age_fill').style.left = minPercent + '%';
-            document.getElementById('age_fill').style.width = (maxPercent - minPercent) + '%';
-
-            if (minS.value < 18 || maxS.value < 18) {
-                document.getElementById('police_modal').classList.remove('hidden');
-                setMeme(MEME_AYARLARI.police);
-                return;
+            // SNAP BACK MECHANISM: Kasten 15'e inmesine izin verilir HTML'de, ama JS zorla geri atar.
+            if (valMin < 18) {
+                min.value = 18; valMin = 18;
+                triggerMeme('police');
             }
-            updateMemeForStep();
-        }
-
-        window.closePoliceModal = function() {
-            document.getElementById('police_modal').classList.add('hidden');
-            document.getElementById('age_min').value = 18;
-            if(parseInt(document.getElementById('age_max').value) < 18) document.getElementById('age_max').value = 20;
-            updateAgeSlider();
-        }
-
-        function updateHeightSingle() {
-            let val = document.getElementById('h_min_single').value;
-            let el = document.getElementById('h_min_single');
-            document.getElementById('h_min_single_display').textContent = val;
-            let pct = ((val - el.min) / (el.max - el.min)) * 100;
-            document.getElementById('h_single_fill').style.width = pct + '%';
-            
-            if (currentUserGender === 'female') {
-                 if(val >= 190) heightEmoji.textContent = "🤤";
-                 else if(val >= 180) heightEmoji.textContent = "😏";
-                 else if(val >= 170) heightEmoji.textContent = "🙂";
-                 else heightEmoji.textContent = "😐";
+            if (valMax < 18) {
+                max.value = 18; valMax = 18;
             }
-            updateMemeForStep();
-        }
 
-        function updateHeightDual() {
-            let minS = document.getElementById('h_min_dual');
-            let maxS = document.getElementById('h_max_dual');
-            let minVal = parseInt(minS.value);
-            let maxVal = parseInt(maxS.value);
-            if (minVal > maxVal) { let tmp = minVal; minVal = maxVal; maxVal = tmp; }
-            document.getElementById('h_display_min_dual').textContent = minVal + " cm";
-            document.getElementById('h_display_max_dual').textContent = maxVal + " cm";
-            let minP = ((minVal - minS.min) / (minS.max - minS.min)) * 100;
-            let maxP = ((maxVal - minS.min) / (minS.max - minS.min)) * 100;
-            document.getElementById('h_dual_fill').style.left = minP + '%';
-            document.getElementById('h_dual_fill').style.width = (maxP - minP) + '%';
-        }
+            if (valMin > valMax) { let tmp = valMin; valMin = valMax; valMax = tmp; }
+            document.getElementById('age_val_min').innerText = valMin;
+            document.getElementById('age_val_max').innerText = valMax;
+            setFill('age_fill', min, max);
+        };
 
-        function updateIncomeSingle() {
-            let val = document.getElementById('inc_min_single').value;
-            let el = document.getElementById('inc_min_single');
-            document.getElementById('inc_min_single_display').textContent = (val/1000).toFixed(0) + "k";
-            let pct = ((val - el.min) / (el.max - el.min)) * 100;
-            document.getElementById('inc_single_fill').style.width = pct + '%';
-            
-            if (currentUserGender === 'female') {
-                if(val >= 100000) incomeEmoji.textContent = "🤤";
-                else if(val >= 70000) incomeEmoji.textContent = "😏";
-                else if(val >= 40000) incomeEmoji.textContent = "🙂";
-                else incomeEmoji.textContent = "😐";
+        window.updateHeight = () => {
+            if (uGender === 'female') {
+                let inp = document.getElementById('h_s_input');
+                document.getElementById('h_s_val').innerText = inp.value;
+                document.getElementById('h_s_fill').style.width = ((inp.value - inp.min) / (inp.max - inp.min)) * 100 + '%';
+                if (inp.value >= 190) triggerMeme('tall');
+            } else {
+                let min = document.getElementById('h_d_min'); let max = document.getElementById('h_d_max');
+                if (parseInt(min.value) > parseInt(max.value)) { let t = min.value; min.value = max.value; max.value = t; }
+                document.getElementById('h_d_val_min').innerText = min.value;
+                document.getElementById('h_d_val_max').innerText = max.value;
+                setFill('h_d_fill', min, max);
             }
-            updateMemeForStep();
-        }
+        };
 
-        function updateIncomeDual() {
-            let minS = document.getElementById('inc_min_dual');
-            let maxS = document.getElementById('inc_max_dual');
-            let minVal = parseInt(minS.value);
-            let maxVal = parseInt(maxS.value);
-            if (minVal > maxVal) { let tmp = minVal; minVal = maxVal; maxVal = tmp; }
-            document.getElementById('inc_display_min_dual').textContent = (minVal/1000).toFixed(0) + "k TL";
-            document.getElementById('inc_display_max_dual').textContent = (maxVal/1000).toFixed(0) + "k TL";
-            let minP = ((minVal - minS.min) / (minS.max - minS.min)) * 100;
-            let maxP = ((maxVal - minS.min) / (minS.max - minS.min)) * 100;
-            document.getElementById('inc_dual_fill').style.left = minP + '%';
-            document.getElementById('inc_dual_fill').style.width = (maxP - minP) + '%';
-        }
+        window.updateIncome = () => {
+            if (uGender === 'female') {
+                let inp = document.getElementById('inc_s_input');
+                document.getElementById('inc_s_val').innerText = (inp.value/1000).toFixed(0) + "k";
+                document.getElementById('inc_s_fill').style.width = ((inp.value - inp.min) / (inp.max - inp.min)) * 100 + '%';
+                if (inp.value >= 150000) triggerMeme('sugar');
+            } else {
+                let min = document.getElementById('inc_d_min'); let max = document.getElementById('inc_d_max');
+                if (parseInt(min.value) > parseInt(max.value)) { let t = min.value; min.value = max.value; max.value = t; }
+                document.getElementById('inc_d_val_min').innerText = (min.value/1000).toFixed(0) + "k";
+                document.getElementById('inc_d_val_max').innerText = (max.value/1000).toFixed(0) + "k";
+                setFill('inc_d_fill', min, max);
+            }
+        };
 
-        updateAgeSlider(); updateHeightSingle(); updateHeightDual(); updateIncomeSingle(); updateIncomeDual();
+        // Init UI
+        updateAge(); updateHeight(); updateIncome();
 
-        function updateMemeForStep() {
-            if(document.getElementById('police_modal').classList.contains('hidden') === false) return;
-
-            if (currentStep === 3) {
-                let val = parseInt(document.getElementById('age_max').value);
-                if(currentTargetGender === 'male') val = parseInt(document.getElementById('age_min').value);
-                
-                let configArray = currentTargetGender === 'female' ? MEME_AYARLARI.age.femaleTarget : MEME_AYARLARI.age.maleTarget;
-                
-                for(let item of configArray) {
-                    if(val <= item.yasSiniri) {
-                        setMeme(item.imgUrl);
-                        return;
+        // --- Loading & Math ---
+        function startLoadingSequence() {
+            showStep('loading');
+            const textEl = document.getElementById('loading_text');
+            const phases = [
+                "TÜİK veritabanına bağlanılıyor...",
+                "Toplumsal gerçeklik filtresi uygulanıyor...",
+                "Delüzyon katsayısı ölçülüyor..."
+            ];
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                textEl.style.opacity = 0;
+                setTimeout(() => {
+                    textEl.innerText = phases[i];
+                    textEl.style.opacity = 1;
+                    i++;
+                    if (i === phases.length) {
+                        clearInterval(interval);
+                        setTimeout(calculateAndShowResult, 1200);
                     }
-                }
-            } else if (currentStep === 6) {
-                if(document.getElementById('include_married').checked) setMeme(MEME_AYARLARI.married);
-                else setMeme(MEME_AYARLARI.default);
-            } 
+                }, 300);
+            }, 1200);
         }
 
-        // --- Olasılık Matematiği ---
         function erf(x) { const sign = (x >= 0) ? 1 : -1; x = Math.abs(x); const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911; const t = 1.0 / (1.0 + p * x); return sign * (1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x)); }
         function normalCDF(x, mean, stdDev) { return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2)))); }
         function incomeCDF(amount, median) { if (amount <= 0) return 0; return 1 - Math.pow(0.5, amount / median); }
 
-        function calculateFinalProbability() {
-            // Hedefin toplam nüfusu
-            let basePop = currentTargetGender === 'male' ? appData.turkey_male_population : appData.turkey_female_population;
+        function calculateAndShowResult() {
+            let basePop = tGender === 'male' ? appData.turkey_male_population : appData.turkey_female_population;
+            let tMean = tGender === 'male' ? appData.height.male_mean : appData.height.female_mean;
+            let tStd = tGender === 'male' ? appData.height.male_std : appData.height.female_std;
             
-            // Hedefin İstatistiksel Verileri
-            let targetMean = currentTargetGender === 'male' ? appData.height_distribution.male_mean : appData.height_distribution.female_mean;
-            let targetStd = currentTargetGender === 'male' ? appData.height_distribution.male_std_dev : appData.height_distribution.female_std_dev;
-            let targetIncomeMedian = appData.income_distribution.median;
+            let pAge = 0.18, pHeight = 1.0, pIncome = 1.0, mult = 1.0, tgtInc = 0;
 
-            let pAge = 0.20, pHeight = 1.0, pIncome = 1.0, mult = 1.0, targetInc = 0;
-
-            // DİKKAT: Veriler kullanıcının cinsiyetine (currentUserGender) göre slider'lardan çekilir
-            if (currentUserGender === 'male') {
-                // Erkek kullanıcı aralık girdi
-                let hMin = parseInt(document.getElementById('h_min_dual').value);
-                let hMax = Math.max(hMin, parseInt(document.getElementById('h_max_dual').value));
-                let iMin = parseInt(document.getElementById('inc_min_dual').value);
-                let iMax = Math.max(iMin, parseInt(document.getElementById('inc_max_dual').value));
-                targetInc = iMax;
-                
-                pHeight = Math.max(0, normalCDF(hMax, targetMean, targetStd) - normalCDF(hMin, targetMean, targetStd));
-                pIncome = Math.max(0, incomeCDF(iMax, targetIncomeMedian) - incomeCDF(iMin, targetIncomeMedian));
+            if (uGender === 'male') {
+                let hMin = parseInt(document.getElementById('h_d_min').value);
+                let hMax = parseInt(document.getElementById('h_d_max').value);
+                let iMin = parseInt(document.getElementById('inc_d_min').value);
+                let iMax = parseInt(document.getElementById('inc_d_max').value);
+                tgtInc = iMax;
+                pHeight = Math.max(0, normalCDF(hMax, tMean, tStd) - normalCDF(hMin, tMean, tStd));
+                pIncome = Math.max(0, incomeCDF(iMax, appData.income_median) - incomeCDF(iMin, appData.income_median));
             } else {
-                // Kadın kullanıcı minimum girdi
-                let hMin = parseInt(document.getElementById('h_min_single').value);
-                let iMin = parseInt(document.getElementById('inc_min_single').value);
-                targetInc = iMin;
-                
-                pHeight = 1 - normalCDF(hMin, targetMean, targetStd);
-                pIncome = 1 - incomeCDF(iMin, targetIncomeMedian);
+                let hMin = parseInt(document.getElementById('h_s_input').value);
+                let iMin = parseInt(document.getElementById('inc_s_input').value);
+                tgtInc = iMin;
+                pHeight = 1 - normalCDF(hMin, tMean, tStd);
+                pIncome = 1 - incomeCDF(iMin, appData.income_median);
             }
 
-            // Filtre Çarpanları
-            if (document.getElementById('exclude_obese').checked) mult *= 0.70;
-            if (!document.getElementById('include_married').checked) mult *= 0.40;
+            if (document.getElementById('chk_obese').checked) mult *= 0.70;
+            if (!document.getElementById('chk_married').checked) mult *= 0.40;
 
-            let mSyr = 1.0, mKur = 1.0, mBla = 1.0;
-            let impact = targetInc > 80000 ? 0.0 : 1.0;
-
-            if (document.getElementById('exclude_syrian').checked) mSyr = 1 - (appData.demographics.syrian_ratio * impact);
-            if (document.getElementById('exclude_kurdish').checked) mKur = 1 - appData.demographics.kurdish_ratio; 
-            if (document.getElementById('exclude_black').checked) mBla = 1 - (appData.demographics.black_ratio * impact);
-
-            let jointP = pAge * pHeight * pIncome * mult * mSyr * mKur * mBla;
+            let impact = tgtInc > 80000 ? 0.0 : 1.0;
+            if (document.getElementById('chk_syrian').checked) mult *= 1 - (appData.demographics.syrian * impact);
+            if (document.getElementById('chk_kurdish').checked) mult *= 1 - appData.demographics.kurdish;
+            
+            let jointP = pAge * pHeight * pIncome * mult;
             let finalPct = (jointP * 100).toFixed(4);
             let pool = Math.floor(basePop * jointP);
 
-            document.getElementById('final_probability').textContent = `%${finalPct}`;
-            document.getElementById('estimated_count').textContent = pool.toLocaleString('tr-TR');
+            document.getElementById('res_pct').innerText = `%${finalPct}`;
+            document.getElementById('res_pool').innerText = pool.toLocaleString('tr-TR');
 
-            let msg = "";
-            if(jointP < 0.0001) { msg = "İllüzyonlar aleminde yaşıyorsun. Sana özel NPC yazılması lazım."; setMeme(MEME_AYARLARI.delusional); }
-            else if(jointP < 0.01) { msg = "Kendi oyununda boss arıyorsun, sokakta bulman imkansız."; setMeme(MEME_AYARLARI.delusional); }
-            else if(jointP < 0.1) { msg = "Zorlarsan haritada bulursun ama çok nazlanma."; setMeme(MEME_AYARLARI.default); }
-            else { msg = "Standartların main karakter için değil, figüranlar için. Bol şans."; setMeme(MEME_AYARLARI.default); }
+            let msg = "Standartların main karakter için değil, figüranlar için. Bol şans.";
+            if(jointP < 0.0001) { msg = "İllüzyonlar aleminde yaşıyorsun. Sana özel NPC yazılması lazım."; triggerMeme('clown'); }
+            else if(jointP < 0.01) { msg = "Kendi oyununda boss arıyorsun, sokakta bulman imkansız."; triggerMeme('clown'); }
             
-            document.getElementById('delusion_msg').textContent = msg;
+            document.getElementById('res_msg').innerText = msg;
+            showStep('result');
         }
     </script>
 </body>
